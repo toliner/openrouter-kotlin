@@ -91,3 +91,48 @@ object XSerializer : KSerializer<X> {
 - `provider_error` needs `@SerialName("provider_error")`
 - Known retryable statuses are limited to transport/rate-limit style failures; everything else stays false unless it is `UnknownError` with a retryable code
 - `kotlin-ls` was unavailable in this environment, so build verification was used instead of LSP diagnostics
+
+## Task 4: Chat Completions Types
+
+### Message Sealed Class Pattern
+- **Custom KSerializer required** for role-based discrimination (not type-based)
+- OpenRouter API uses `role` field (not a separate discriminator) to identify message types
+- Pattern: Sealed class with custom serializer that reads `role` field first, then deserializes specific variant
+- Message variants: System, User (with Content union type), Assistant (with optional tool_calls), Tool
+
+### Message Serializer Implementation
+- Must use `JsonDecoder`/`JsonEncoder` and check with `require()`
+- Read full JSON object, extract `role` field, then deserialize to specific variant
+- When serializing nested union types (Content inside Message.User), **avoid nested encoder contexts**
+- Solution: Manually unwrap Content variants to avoid `encodeToJsonElement(Content.serializer(), ...)` which creates nested encoder
+- Directly build JSON with `when (content) { is Text -> JsonPrimitive(...) is Parts -> ... }`
+
+### Type Definitions Completed
+1. **Message.kt**: Sealed class with System, User, Assistant, Tool + ToolCall, FunctionCall (response types)
+2. **Tool.kt**: FunctionTool, FunctionDefinition (request types) - use `JsonElement` for flexible parameters
+3. **ResponseFormat.kt**: Simple data class with type field
+4. **ProviderPreferences.kt**: All provider preference fields with @SerialName
+5. **Usage.kt**: Token usage tracking
+6. **Trace.kt**: Distributed tracing support
+7. **ChatCompletionRequest.kt**: ALL fields including model, messages, temperature, max_tokens, top_p, top_k, frequency_penalty, presence_penalty, repetition_penalty, seed, stop, stream, tools, tool_choice, response_format, provider, trace, transforms, route, models
+8. **ChatCompletionResponse.kt**: Response with choices + usage
+9. **ChatCompletionChunk.kt**: Streaming chunk with Delta (role, content, tool_calls may be incremental)
+
+### JsonElement for Flexible Parameters
+- Use `JsonElement` type for function parameters (instead of `Map<String, Any>`)
+- Build with `buildJsonObject { put("key", JsonPrimitive("value")) }`
+- Avoids internal serializer access issues
+
+### Test Coverage
+- Message serialization round-trip for all variants (System, User text/multipart, Assistant, Tool)
+- Tool types (FunctionTool, ToolCall, FunctionCall)
+- Support types (ResponseFormat, ProviderPreferences, Usage, Trace)
+- ChatCompletionRequest: minimal (model + messages) + full (all optional fields)
+- ChatCompletionResponse: normal response + tool_calls variant
+- ChatCompletionChunk: delta content, delta tool_calls, finish_reason, usage
+
+### Key Learnings
+- **Polymorphic-by-field pattern**: When API uses a data field (not type discriminator) for polymorphism, use custom serializer
+- **Nested encoder issues**: Calling `encoder.json.encodeToJsonElement(CustomSerializer.serializer(), value)` fails if CustomSerializer expects JsonEncoder context
+- **Solution**: Manually unwrap union types when building JSON in parent serializer
+- **JsonElement**: Preferred for arbitrary JSON structures (like function parameters) - more flexible than Map
