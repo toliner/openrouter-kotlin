@@ -293,7 +293,7 @@ Wave FINAL (全タスク完了後 — 4並列レビュー → ユーザー承認
 
 ## TODOs
 
-- [ ] 1. build.gradle.kts 依存関係セットアップ
+- [x] 1. build.gradle.kts 依存関係セットアップ
 
   **What to do**:
   - `build.gradle.kts` にkotlinx.serialization、Ktor、Kotestの全依存関係を追加する
@@ -382,7 +382,7 @@ Wave FINAL (全タスク完了後 — 4並列レビュー → ユーザー承認
   - Files: `build.gradle.kts`, テストファイル
   - Pre-commit: `./gradlew build`
 
-- [ ] 2. Json設定 + カスタムシリアライザー基盤
+- [x] 2. Json設定 + カスタムシリアライザー基盤
 
   **What to do**:
   - TDD: まずテストを書き、失敗を確認してから実装する
@@ -497,7 +497,7 @@ Wave FINAL (全タスク完了後 — 4並列レビュー → ユーザー承認
   - Files: `src/main/kotlin/dev/toliner/openrouter/serialization/`, `src/test/kotlin/dev/toliner/openrouter/serialization/`
   - Pre-commit: `./gradlew test --tests "dev.toliner.openrouter.serialization.*"`
 
-- [ ] 3. sealed例外階層
+- [x] 3. sealed例外階層
 
   **What to do**:
   - TDD: テストから書く

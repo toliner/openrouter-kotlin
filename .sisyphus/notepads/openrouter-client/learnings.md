@@ -77,3 +77,17 @@ object XSerializer : KSerializer<X> {
 - RED phase: Write failing test (compilation errors expected)
 - GREEN phase: Implement minimal code to pass tests
 - Tests confirmed behavior before moving to next serializer
+
+
+## Task 3: Error Exception Hierarchy
+
+### Pattern
+- `sealed class OpenRouterException` with one subclass per HTTP error family used by OpenRouter
+- `errorFromStatus()` maps HTTP status codes to typed exceptions
+- `OpenRouterException.isRetryable` is an extension property, not business logic
+
+### Key Learnings
+- `ErrorBody` and `ErrorResponse` should both be `@Serializable`
+- `provider_error` needs `@SerialName("provider_error")`
+- Known retryable statuses are limited to transport/rate-limit style failures; everything else stays false unless it is `UnknownError` with a retryable code
+- `kotlin-ls` was unavailable in this environment, so build verification was used instead of LSP diagnostics
