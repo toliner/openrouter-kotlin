@@ -1,0 +1,30 @@
+# Evidence: ignoreUnknownKeys = true in Model Type Deserialization
+
+Test case: "Model deserialization - ignores unknown fields"
+Location: src/test/kotlin/dev/toliner/openrouter/l1/models/ModelTypesTest.kt
+
+Input JSON contains unknown fields:
+- "unknown_field": "should be ignored"
+- "another_unknown": 12345
+
+Result: PASSED
+- Model successfully deserialized despite unknown fields
+- OpenRouterJson configuration (ignoreUnknownKeys = true) correctly handled extra fields
+- No SerializationException thrown
+
+Test case: "ModelList deserialization - ignores unknown top-level fields"
+Location: src/test/kotlin/dev/toliner/openrouter/l1/models/ModelTypesTest.kt
+
+Input JSON contains unknown top-level fields:
+- "meta": {"unknown": "field"}
+- "version": "1.0"
+
+Result: PASSED
+- ModelList successfully deserialized despite unknown top-level fields
+- Data array correctly extracted
+- Unknown fields silently ignored
+
+This validates that:
+1. OpenRouterJson (ignoreUnknownKeys = true) applies to all model types
+2. API versioning/extension fields won't break deserialization
+3. Forward compatibility maintained for future API changes

@@ -156,3 +156,46 @@ object XSerializer : KSerializer<X> {
 ### Test Approach
 - Hand-crafted `flowOf(ServerSentEvent(...))` tests are stable for SSE transform logic and avoid KTOR-7910 timing behavior.
 - Include both debug behaviors in tests: skip debug-only chunk, but emit normal chunk even when unknown `debug` field is present (`ignoreUnknownKeys=true`).
+
+## Task 6: Models Type + Endpoints
+
+### Type Definitions Completed
+1. **Model.kt**: Core model type with nested data classes (Pricing, Architecture, TopProvider, PerRequestLimits)
+2. **ModelList.kt**: Simple wrapper with `data: List<Model>`
+3. **ModelsCount.kt**: Model count response (`count: Int`)
+4. **ModelEndpoint.kt**: Endpoint info with URL and headers (using `JsonElement` for flexible headers)
+5. **ZdrEndpoint.kt**: ZDR impact preview type
+6. **EmbeddingModel.kt**: Embedding model info (reuses `Pricing` from Model.kt)
+
+### Critical Finding: Pricing Fields Are Strings
+OpenRouter API returns pricing values as **string-typed numbers**, not doubles:
+- Example: `"prompt": "0.0000005"`, `"completion": "0.0000015"`
+- Rationale: Avoids floating-point precision issues in financial calculations
+- Pattern: Define as `String` in Kotlin, convert to `BigDecimal` or `Double` only when needed
+
+### Nested Data Classes Pattern
+Structured complex types using separate data classes:
+- `Pricing`: Reusable across Model and EmbeddingModel
+- `Architecture`: Modality, tokenizer, instruct_type
+- `TopProvider`: Context length, max completion tokens, moderation status
+- `PerRequestLimits`: Optional token limits (nullable fields)
+
+### All Fields Use @SerialName
+Every snake_case JSON field has explicit @SerialName annotation:
+- `context_length` → `@SerialName("context_length") val contextLength`
+- `top_provider` → `@SerialName("top_provider") val topProvider`
+- `per_request_limits` → `@SerialName("per_request_limits") val perRequestLimits`
+- No JsonNamingStrategy used (explicit annotations only)
+
+### Test Coverage
+- Model: Full deserialization with all nested types + unknown field tolerance
+- ModelList: Data array parsing + top-level unknown fields ignored
+- ModelsCount, ModelEndpoint, ZdrEndpoint, EmbeddingModel: Basic deserialization
+- All tests validate `ignoreUnknownKeys = true` behavior from OpenRouterJson
+
+### TDD Process
+RED → GREEN cycle followed:
+1. Write failing test with expected JSON structure
+2. Implement minimal type definition with @Serializable + @SerialName
+3. Verify compilation + test passes
+4. Evidence files created: task-6-model-types.txt, task-6-unknown-fields.txt
