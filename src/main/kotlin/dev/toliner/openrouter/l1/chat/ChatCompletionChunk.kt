@@ -1,5 +1,6 @@
 package dev.toliner.openrouter.l1.chat
 
+import dev.toliner.openrouter.error.ErrorBody
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -26,7 +27,9 @@ data class ChunkChoice(
     @SerialName("delta")
     val delta: Delta,
     @SerialName("finish_reason")
-    val finishReason: String? = null
+    val finishReason: String? = null,
+    @SerialName("error")
+    val error: ErrorBody? = null
 )
 
 @Serializable

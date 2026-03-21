@@ -136,3 +136,23 @@ object XSerializer : KSerializer<X> {
 - **Nested encoder issues**: Calling `encoder.json.encodeToJsonElement(CustomSerializer.serializer(), value)` fails if CustomSerializer expects JsonEncoder context
 - **Solution**: Manually unwrap union types when building JSON in parent serializer
 - **JsonElement**: Preferred for arbitrary JSON structures (like function parameters) - more flexible than Map
+
+## Task 5: SSE Streaming Parser
+
+### Parsing Strategy
+- `Flow<ServerSentEvent>.toChatCompletionChunks(json)` should stop on `data: [DONE]` via `takeWhile` before parse.
+- Use `event.data?.trim()` as first gate: null/blank payloads are skipped.
+- Comment-like payloads (`:` prefix) should be ignored in parser logic to avoid JSON decode failures.
+
+### Debug/Usage/Error Chunk Handling
+- Debug-only chunks (`choices: []` + `debug`) can be skipped safely by pre-parsing to `JsonElement` and checking object shape before decoding into `ChatCompletionChunk`.
+- Usage-only chunks (`choices: []` + `usage`) should still be emitted because they carry final token accounting.
+- Mid-stream error detection works by checking decoded `ChunkChoice` entries for `finish_reason == "error" && error != null`, then throwing `OpenRouterException.StreamError`.
+
+### Type Model Adjustment
+- Both `ChunkChoice` and `Choice` need optional `error: ErrorBody?` to support stream and non-stream in-band error detection.
+- Keeping `error` optional preserves backward compatibility with normal success payloads.
+
+### Test Approach
+- Hand-crafted `flowOf(ServerSentEvent(...))` tests are stable for SSE transform logic and avoid KTOR-7910 timing behavior.
+- Include both debug behaviors in tests: skip debug-only chunk, but emit normal chunk even when unknown `debug` field is present (`ignoreUnknownKeys=true`).

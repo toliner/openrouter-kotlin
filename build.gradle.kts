@@ -15,6 +15,7 @@ dependencies {
     implementation("io.ktor:ktor-client-cio:3.4.1")
     implementation("io.ktor:ktor-client-content-negotiation:3.4.1")
     implementation("io.ktor:ktor-serialization-kotlinx-json:3.4.1")
+    implementation("io.ktor:ktor-sse:3.4.1")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.10.0")
 
     testImplementation("io.kotest:kotest-runner-junit5:6.1.0")
