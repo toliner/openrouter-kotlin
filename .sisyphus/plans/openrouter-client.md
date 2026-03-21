@@ -1010,7 +1010,7 @@ Wave FINAL (全タスク完了後 — 4並列レビュー → ユーザー承認
   - Files: `src/main/kotlin/dev/toliner/openrouter/l1/embeddings/`, `src/test/kotlin/dev/toliner/openrouter/l1/embeddings/`
   - Pre-commit: `./gradlew test --tests "dev.toliner.openrouter.l1.embeddings.*"`
 
-- [ ] 8. OpenRouterClient基盤 + Chat Completionsエンドポイント統合
+- [x] 8. OpenRouterClient基盤 + Chat Completionsエンドポイント統合
 
   **What to do**:
   - TDD: テストから書く

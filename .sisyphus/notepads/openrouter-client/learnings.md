@@ -218,3 +218,18 @@ RED → GREEN cycle followed:
 - 変換対象が `ServerSentEvent.data` でも、テストでは `data: ...` プレフィックス付き文字列を直接流し込むケースがあるため、正規化レイヤーを先に入れると堅牢になる。
 - 正規化は `trim()` → `data:` プレフィックス除去 → 空文字判定の順にすると、`data: ` (空data行) を安全にスキップできる。
 - `[DONE]` 判定も正規化後に行うことで、`data: [DONE]` と `[DONE]` の両方を同一ロジックで扱える。
+
+## Task 8: OpenRouterClient + API統合
+
+### Client構築パターン
+- `OpenRouterClient(engine, config)` で `HttpClient` を構築し、`ContentNegotiation(json(OpenRouterJson))` + `expectSuccess = false` を固定すると、HTTPエラーをコールサイト側で一貫処理しやすい。
+- 共通ヘッダー付与は `HttpRequestBuilder` 拡張 (`Authorization`, 任意で `HTTP-Referer`, `X-Title`) にまとめると、Chat/Models/Embeddings 間で重複を避けられる。
+
+### エラーハンドリング統合
+- HTTPステータスは `throwIfErrorStatus()` で先に判定し、`errorFromStatus(status, body, retryAfter)` へ集約する。
+- エラーボディは `{"error": {...}}` と `{...}` の両形を受けるため、`ErrorResponse` → `ErrorBody` の順でフォールバック復元すると耐性が上がる。
+- Chat complete はデコード後に `checkInBandError()` を必ず通すことで、HTTP 200 の in-band failure を `OpenRouterException.InBandError` に正規化できる。
+
+### Streaming統合
+- `stream()` は送信時に `request.copy(stream = true)` を強制し、呼び出し側が `stream` 指定を忘れても一貫した動作になる。
+- 受信SSEは `data:` 行を `ServerSentEvent` に変換して `toChatCompletionChunks(OpenRouterJson)` に流すと、既存の `[DONE]` 処理・mid-stream error処理を再利用できる。

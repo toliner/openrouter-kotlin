@@ -1,0 +1,5 @@
+Task 8 QA Scenario 2
+Scenario: HTTP error response conversion (401 Unauthorized, 429 TooManyRequests + Retry-After).
+Test: dev.toliner.openrouter.client.OpenRouterClientTest > "http status errors are mapped with errorFromStatus"
+Command: ./gradlew test --tests "dev.toliner.openrouter.client.OpenRouterClientTest"
+Result: PASS (BUILD SUCCESSFUL)

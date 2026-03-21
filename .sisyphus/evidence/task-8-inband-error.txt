@@ -1,0 +1,5 @@
+Task 8 QA Scenario 3
+Scenario: In-band error detection (HTTP 200 with choices[i].error).
+Test: dev.toliner.openrouter.client.OpenRouterClientTest > "in-band errors in completion response are detected"
+Command: ./gradlew test --tests "dev.toliner.openrouter.client.OpenRouterClientTest"
+Result: PASS (BUILD SUCCESSFUL)

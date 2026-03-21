@@ -1,0 +1,8 @@
+Task 8 Final Verification
+Command: ./gradlew test --tests "dev.toliner.openrouter.client.*"
+Result: PASS (BUILD SUCCESSFUL)
+
+LSP Diagnostics:
+- Attempted lsp_diagnostics on all changed files.
+- kotlin-ls is not installed in this environment ("Command not found: kotlin-lsp").
+- Build + test pass used as fallback verification.

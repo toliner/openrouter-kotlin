@@ -1,0 +1,5 @@
+Task 8 QA Scenario 4
+Scenario: Models API endpoints integration (list/count/user/endpoints/zdr/embedding).
+Test: dev.toliner.openrouter.client.OpenRouterClientTest > "models endpoints return expected payloads"
+Command: ./gradlew test --tests "dev.toliner.openrouter.client.OpenRouterClientTest"
+Result: PASS (BUILD SUCCESSFUL)
