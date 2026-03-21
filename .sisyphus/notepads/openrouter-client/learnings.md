@@ -199,3 +199,22 @@ RED → GREEN cycle followed:
 2. Implement minimal type definition with @Serializable + @SerialName
 3. Verify compilation + test passes
 4. Evidence files created: task-6-model-types.txt, task-6-unknown-fields.txt
+
+## Task 7: Embeddings Types
+
+### Learning
+- EmbeddingRequest uses StringOrArray for input so single-string and array payloads share one type.
+- EmbeddingResponse reuses dev.toliner.openrouter.l1.chat.Usage; the embeddings API shares the same usage shape as chat.
+- Keeping @SerialName on every JSON field preserves the explicit mapping style used across the client.
+- Test coverage should include both serialization forms for input plus response deserialization with usage.
+
+### Follow-up
+- `EmbeddingData` must expose the JSON field as backticked ``object`` to match the API payload exactly.
+- Task 7 verification passed with `./gradlew test --tests "dev.toliner.openrouter.l1.embeddings.*"`.
+
+## Task 5: SSE Streaming Parser (追加学習)
+
+### Raw SSE Line耐性
+- 変換対象が `ServerSentEvent.data` でも、テストでは `data: ...` プレフィックス付き文字列を直接流し込むケースがあるため、正規化レイヤーを先に入れると堅牢になる。
+- 正規化は `trim()` → `data:` プレフィックス除去 → 空文字判定の順にすると、`data: ` (空data行) を安全にスキップできる。
+- `[DONE]` 判定も正規化後に行うことで、`data: [DONE]` と `[DONE]` の両方を同一ロジックで扱える。

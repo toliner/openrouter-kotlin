@@ -604,7 +604,7 @@ Wave FINAL (全タスク完了後 — 4並列レビュー → ユーザー承認
   - Files: `src/main/kotlin/dev/toliner/openrouter/error/`, `src/test/kotlin/dev/toliner/openrouter/error/`
   - Pre-commit: `./gradlew test --tests "dev.toliner.openrouter.error.*"`
 
-- [ ] 4. Chat Completions リクエスト/レスポンス型
+- [x] 4. Chat Completions リクエスト/レスポンス型
 
   **What to do**:
   - TDD: テストから書く
@@ -723,7 +723,7 @@ Wave FINAL (全タスク完了後 — 4並列レビュー → ユーザー承認
   - Files: `src/main/kotlin/dev/toliner/openrouter/l1/chat/`, `src/test/kotlin/dev/toliner/openrouter/l1/chat/`
   - Pre-commit: `./gradlew test --tests "dev.toliner.openrouter.l1.chat.*"`
 
-- [ ] 5. SSEストリーミング解析・Flow変換
+- [x] 5. SSEストリーミング解析・Flow変換
 
   **What to do**:
   - TDD: テストから書く
@@ -845,7 +845,7 @@ Wave FINAL (全タスク完了後 — 4並列レビュー → ユーザー承認
   - Files: `src/main/kotlin/dev/toliner/openrouter/streaming/`, `src/test/kotlin/dev/toliner/openrouter/streaming/`
   - Pre-commit: `./gradlew test --tests "dev.toliner.openrouter.streaming.*"`
 
-- [ ] 6. Models型 + エンドポイント
+- [x] 6. Models型 + エンドポイント
 
   **What to do**:
   - TDD: テストから書く
@@ -941,7 +941,7 @@ Wave FINAL (全タスク完了後 — 4並列レビュー → ユーザー承認
   - Files: `src/main/kotlin/dev/toliner/openrouter/l1/models/`, `src/test/kotlin/dev/toliner/openrouter/l1/models/`
   - Pre-commit: `./gradlew test --tests "dev.toliner.openrouter.l1.models.*"`
 
-- [ ] 7. Embeddings型 + エンドポイント
+- [x] 7. Embeddings型 + エンドポイント
 
   **What to do**:
   - TDD: テストから書く

@@ -98,6 +98,29 @@ class SseParserTest : FunSpec({
         chunks shouldBe emptyList()
     }
 
+    test("raw sse data prefix is normalized") {
+        val events = flowOf(
+            ServerSentEvent(data = "data: {\"id\":\"gen-123\",\"model\":\"openai/gpt-4o\",\"object\":\"chat.completion.chunk\",\"created\":1,\"choices\":[{\"index\":0,\"delta\":{\"content\":\"Hello\"}}]}"),
+            ServerSentEvent(data = "data: [DONE]")
+        )
+
+        val chunks = events.toChatCompletionChunks(OpenRouterJson).toList()
+
+        chunks.size shouldBe 1
+        chunks[0].choices[0].delta.content shouldBe "Hello"
+    }
+
+    test("raw empty data prefix line is skipped") {
+        val events = flowOf(
+            ServerSentEvent(data = "data: "),
+            ServerSentEvent(data = "data: [DONE]")
+        )
+
+        val chunks = events.toChatCompletionChunks(OpenRouterJson).toList()
+
+        chunks shouldBe emptyList()
+    }
+
     test("mid-stream error throws StreamError") {
         val events = flowOf(
             ServerSentEvent(data = """{"id":"gen-123","model":"openai/gpt-4o","object":"chat.completion.chunk","created":1,"choices":[{"index":0,"delta":{},"finish_reason":"error","error":{"message":"upstream failed","code":500}}]}""")
@@ -114,17 +137,19 @@ class SseParserTest : FunSpec({
     test("multiple chunks are emitted in order") {
         val events = flowOf(
             ServerSentEvent(data = """{"id":"gen-123","model":"openai/gpt-4o","object":"chat.completion.chunk","created":1,"choices":[{"index":0,"delta":{"content":"He"}}]}"""),
-            ServerSentEvent(data = """{"id":"gen-123","model":"openai/gpt-4o","object":"chat.completion.chunk","created":2,"choices":[{"index":0,"delta":{"content":"llo"}}]}"""),
-            ServerSentEvent(data = """{"id":"gen-123","model":"openai/gpt-4o","object":"chat.completion.chunk","created":3,"choices":[],"usage":{"prompt_tokens":10,"completion_tokens":2,"total_tokens":12}}"""),
+            ServerSentEvent(data = """{"id":"gen-123","model":"openai/gpt-4o","object":"chat.completion.chunk","created":2,"choices":[{"index":0,"delta":{"content":"ll"}}]}"""),
+            ServerSentEvent(data = """{"id":"gen-123","model":"openai/gpt-4o","object":"chat.completion.chunk","created":3,"choices":[{"index":0,"delta":{"content":"o"}}]}"""),
+            ServerSentEvent(data = """{"id":"gen-123","model":"openai/gpt-4o","object":"chat.completion.chunk","created":4,"choices":[],"usage":{"prompt_tokens":10,"completion_tokens":2,"total_tokens":12}}"""),
             ServerSentEvent(data = "[DONE]")
         )
 
         val chunks = events.toChatCompletionChunks(OpenRouterJson).toList()
 
-        chunks.size shouldBe 3
+        chunks.size shouldBe 4
         chunks[0].choices[0].delta.content shouldBe "He"
-        chunks[1].choices[0].delta.content shouldBe "llo"
-        chunks[2].usage?.totalTokens shouldBe 12
+        chunks[1].choices[0].delta.content shouldBe "ll"
+        chunks[2].choices[0].delta.content shouldBe "o"
+        chunks[3].usage?.totalTokens shouldBe 12
     }
 
     test("in-band error in completion response throws InBandError") {

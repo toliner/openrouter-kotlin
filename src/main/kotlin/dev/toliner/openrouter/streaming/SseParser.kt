@@ -14,15 +14,15 @@ import kotlinx.serialization.json.decodeFromJsonElement
 
 fun Flow<ServerSentEvent>.toChatCompletionChunks(json: Json): Flow<ChatCompletionChunk> =
     takeWhile { event ->
-        val data = event.data?.trim() ?: return@takeWhile true
+        val data = event.normalizedData() ?: return@takeWhile true
         data != "[DONE]"
     }
         .filter { event ->
-            val data = event.data?.trim()
+            val data = event.normalizedData()
             !data.isNullOrEmpty() && !data.startsWith(":")
         }
         .map { event ->
-            val data = event.data!!.trim()
+            val data = event.normalizedData() ?: error("unreachable")
             val element = json.parseToJsonElement(data)
             if (element.shouldSkipDebugChunk()) {
                 null
@@ -46,4 +46,18 @@ private fun kotlinx.serialization.json.JsonElement.shouldSkipDebugChunk(): Boole
     if (!hasDebug) return false
     val choices = obj["choices"] as? JsonArray ?: return false
     return choices.isEmpty()
+}
+
+private fun ServerSentEvent.normalizedData(): String? {
+    val raw = data ?: return null
+    val trimmed = raw.trim()
+    if (trimmed.isEmpty()) return null
+
+    val payload = if (trimmed.startsWith("data:")) {
+        trimmed.removePrefix("data:").trimStart()
+    } else {
+        trimmed
+    }
+
+    return payload
 }
