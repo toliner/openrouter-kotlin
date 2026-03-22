@@ -31,6 +31,7 @@ class OpenRouterClient(
     val generation: GenerationApi = GenerationApi(httpClient, config)
     val account: AccountApi = AccountApi(httpClient, config)
     val keys: KeysApi = KeysApi(httpClient, config)
+    val guardrails: GuardrailsApi = GuardrailsApi(httpClient, config)
 
     override fun close() {
         httpClient.close()
