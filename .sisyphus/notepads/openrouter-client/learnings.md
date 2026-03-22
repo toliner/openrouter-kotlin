@@ -276,3 +276,51 @@ RED → GREEN cycle followed:
 - `OpenRouterClient.generation` and `OpenRouterClient.account` properties added
 - Consistent with existing `chat`, `models`, `embeddings` pattern
 - All API classes share `httpClient` and `config` from client constructor
+
+## 2026-03-22 17:36:49 - Task 10: Key Management CRUD
+
+### Pattern Applied
+- **Full CRUD operations**: list (GET), create (POST), get (GET with path param), update (PATCH), delete (DELETE 204)
+- **DELETE 204 No Content handling**: Use `response.throwIfErrorStatus()` without body decode - critical for endpoints that return no content
+- **PATCH partial update**: Send only fields that change (nullable fields excluded from JSON when null)
+- **Content-Type requirement**: POST/PATCH must set `contentType(ContentType.Application.Json)` before `setBody()` to avoid serialization errors
+
+### Implementation Details
+- **ApiKey type**: Complex nested structure with RateLimit, all snake_case fields use @SerialName
+- **CreateKeyRequest**: All optional fields except `name` (nullable with default = null)
+- **UpdateKeyRequest**: ALL fields optional (true partial update pattern)
+- **KeysApi integration**: Added to OpenRouterClient as `val keys: KeysApi`
+
+### Test Coverage
+- **KeyTypesTest**: 8 tests covering ApiKey/CreateKeyRequest/UpdateKeyRequest serialization/deserialization
+  - Full fields, optional fields, list responses, partial serialization
+- **KeysApiTest**: 6 tests covering all 5 CRUD operations
+  - HTTP method validation, URL path validation, header validation
+  - Request body JSON validation for POST/PATCH
+  - PATCH partial update verification (only changed fields sent)
+  - DELETE 204 No Content handling (no exception thrown)
+
+### Gotchas Encountered
+1. **Content-Type header in tests**: Must use `shouldStartWith(ContentType.Application.Json.toString())` not `shouldBe` because Ktor adds charset parameter
+2. **contentType() required**: Without it, Ktor throws "Fail to prepare request body" error - not caught by MockEngine validation
+3. **DELETE 204 pattern**: No body to decode, just `throwIfErrorStatus()` - different from other operations
+
+### Key Learnings
+- PATCH endpoints with partial updates require nullable fields but should NOT send null values - use JSON serialization defaults
+- DELETE 204 is simpler than other operations - just validate status, no body processing
+- Test validators must check actual HTTP behavior (Content-Type with charset) not ideal JSON types
+- contentType() call is mandatory for POST/PATCH even though ContentNegotiation plugin is installed
+
+### Files Created
+- src/main/kotlin/dev/toliner/openrouter/l1/keys/ApiKey.kt
+- src/main/kotlin/dev/toliner/openrouter/l1/keys/CreateKeyRequest.kt
+- src/main/kotlin/dev/toliner/openrouter/l1/keys/UpdateKeyRequest.kt
+- src/main/kotlin/dev/toliner/openrouter/client/KeysApi.kt
+- src/test/kotlin/dev/toliner/openrouter/l1/keys/KeyTypesTest.kt
+- src/test/kotlin/dev/toliner/openrouter/client/KeysApiTest.kt
+
+### Files Modified
+- src/main/kotlin/dev/toliner/openrouter/client/OpenRouterClient.kt (added keys property)
+
+### Evidence
+- .sisyphus/evidence/task-10-keys-crud.txt: Full test suite output showing all 14 keys tests passing (8 KeyTypesTest + 6 KeysApiTest)

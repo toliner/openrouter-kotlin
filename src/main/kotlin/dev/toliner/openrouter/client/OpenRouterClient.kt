@@ -30,6 +30,7 @@ class OpenRouterClient(
     val embeddings: EmbeddingsApi = EmbeddingsApi(httpClient, config)
     val generation: GenerationApi = GenerationApi(httpClient, config)
     val account: AccountApi = AccountApi(httpClient, config)
+    val keys: KeysApi = KeysApi(httpClient, config)
 
     override fun close() {
         httpClient.close()
