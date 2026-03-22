@@ -28,6 +28,8 @@ class OpenRouterClient(
     val chat: ChatApi = ChatApi(httpClient, config)
     val models: ModelsApi = ModelsApi(httpClient, config)
     val embeddings: EmbeddingsApi = EmbeddingsApi(httpClient, config)
+    val generation: GenerationApi = GenerationApi(httpClient, config)
+    val account: AccountApi = AccountApi(httpClient, config)
 
     override fun close() {
         httpClient.close()

@@ -1165,7 +1165,7 @@ Wave FINAL (全タスク完了後 — 4並列レビュー → ユーザー承認
   - Files: `src/main/kotlin/dev/toliner/openrouter/client/`, `src/test/kotlin/dev/toliner/openrouter/client/`, `src/test/kotlin/dev/toliner/openrouter/testutil/`
   - Pre-commit: `./gradlew test`
 
-- [ ] 9. Generation + Account (credits, key info, activity) 型 + エンドポイント
+- [x] 9. Generation + Account (credits, key info, activity) 型 + エンドポイント
 
   **What to do**:
   - TDD: テストから書く

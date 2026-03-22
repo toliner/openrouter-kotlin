@@ -233,3 +233,46 @@ RED → GREEN cycle followed:
 ### Streaming統合
 - `stream()` は送信時に `request.copy(stream = true)` を強制し、呼び出し側が `stream` 指定を忘れても一貫した動作になる。
 - 受信SSEは `data:` 行を `ServerSentEvent` に変換して `toChatCompletionChunks(OpenRouterJson)` に流すと、既存の `[DONE]` 処理・mid-stream error処理を再利用できる。
+
+## Task 9: Generation + Account Types and Endpoints
+
+### Type Definitions Completed
+1. **Generation.kt**: Generation metadata type with GenerationUsage nested class
+2. **Credits.kt**: Account credits balance (total_credits, total_usage)
+3. **KeyInfo.kt**: API key information with RateLimit nested class
+4. **Activity.kt**: Daily usage activity with DailyActivity nested class
+
+### API Endpoints Added
+1. **GenerationApi**: `get(id)` returns Generation metadata for a request ID
+2. **AccountApi**: `credits()`, `keyInfo()`, `activity()` for account management
+3. **OpenRouterClient**: Integrated `generation` and `account` properties
+
+### Critical Finding: Generation Cost is Double, Not String
+- Initial implementation used `String` for `GenerationUsage.cost` (following Task 6's Pricing pattern)
+- OpenRouter API returns `cost` as **numeric value** (e.g., `0.0075`), not string
+- **Root cause**: Task 6's Pricing fields (`"prompt": "0.0000005"`) were strings to preserve precision
+- **Generation API difference**: `usage.cost` field is a computed **transaction total**, not a unit rate
+- **Resolution**: Changed `GenerationUsage.cost` from `String` to `Double`
+
+### Pattern Consistency
+- All GET endpoints use `getAndDecode<T>(url)` pattern from ModelsApi/EmbeddingsApi
+- GenerationApi uses `parameter("id", id)` for query string construction
+- AccountApi endpoints require Management API Key (documented in types, not enforced in client)
+- All nested types use `@SerialName` annotations for snake_case JSON fields
+
+### Test Coverage
+- Generation types: Full deserialization with all fields + optional fields (native_tokens_*)
+- Account types: Credits, KeyInfo (with null limit), Activity (empty + populated data arrays)
+- Nested types: GenerationUsage, RateLimit, DailyActivity
+- All tests validate `ignoreUnknownKeys = true` behavior from OpenRouterJson
+
+### TDD Process
+- RED phase: Tests written first with expected JSON structures
+- GREEN phase: Types implemented with @Serializable + @SerialName
+- Fixed cost type mismatch: String → Double after test failure analysis
+- Full test suite passes after adjustment
+
+### Integration
+- `OpenRouterClient.generation` and `OpenRouterClient.account` properties added
+- Consistent with existing `chat`, `models`, `embeddings` pattern
+- All API classes share `httpClient` and `config` from client constructor
