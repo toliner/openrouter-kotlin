@@ -2,6 +2,7 @@ package dev.toliner.openrouter.l2.chat
 
 import dev.toliner.openrouter.l1.chat.*
 import dev.toliner.openrouter.l2.OpenRouterDslMarker
+import dev.toliner.openrouter.l2.routing.ProviderRoutingBuilder
 import dev.toliner.openrouter.l2.tools.ToolsBuilder
 import dev.toliner.openrouter.serialization.Content
 import dev.toliner.openrouter.serialization.StringOrArray
@@ -53,7 +54,11 @@ class ChatRequestBuilder {
     fun tools(block: ToolsBuilder.() -> Unit) {
         this.tools = ToolsBuilder().apply(block).build()
     }
-    
+
+    fun provider(block: ProviderRoutingBuilder.() -> Unit) {
+        this.provider = ProviderRoutingBuilder().apply(block).build()
+    }
+
     fun build(): ChatCompletionRequest {
         requireNotNull(model) { "model is required" }
         require(messages.isNotEmpty()) { "at least one message is required" }

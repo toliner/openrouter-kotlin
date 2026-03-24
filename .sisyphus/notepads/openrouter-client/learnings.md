@@ -682,3 +682,23 @@ val response = client.chat {
 - ✅ Tests pass (13 tool DSL tests + all previous tests)
 - ✅ No regressions
 - ✅ Ready for commit: `feat(l2): add tool calling DSL`
+
+## [2026-03-25] Task 17: Provider Routing DSL
+
+### Pattern Applied
+- Simple field-mapping builder for provider routing preferences
+- Direct integration into ChatRequestBuilder via `provider { ... }`
+- No validation or complex nested routing logic
+
+### Supported Fields
+- `order`: provider priority list
+- `allowFallbacks`: fallback toggle
+- `requireParameters`: boolean requirement flag
+- `dataCollection`: "deny" | "allow"
+- `preferredMinThroughput`: integer throughput threshold
+- `ignore`: excluded providers list
+
+### Key Learnings
+- `ProviderPreferences` already defines `@SerialName` mappings, so DSL just needs to populate the model
+- JSON assertions can verify snake_case names like `allow_fallbacks` and `preferred_min_throughput`
+- DSL builder lives in `l2.routing` and is imported by `ChatRequestBuilder`
