@@ -2,6 +2,7 @@ package dev.toliner.openrouter.l2.chat
 
 import dev.toliner.openrouter.l1.chat.*
 import dev.toliner.openrouter.l2.OpenRouterDslMarker
+import dev.toliner.openrouter.l2.tools.ToolsBuilder
 import dev.toliner.openrouter.serialization.Content
 import dev.toliner.openrouter.serialization.StringOrArray
 import dev.toliner.openrouter.serialization.ToolChoice
@@ -47,6 +48,10 @@ class ChatRequestBuilder {
     
     fun toolMessage(toolCallId: String, content: String) {
         messages.add(Message.Tool(toolCallId = toolCallId, content = content))
+    }
+    
+    fun tools(block: ToolsBuilder.() -> Unit) {
+        this.tools = ToolsBuilder().apply(block).build()
     }
     
     fun build(): ChatCompletionRequest {

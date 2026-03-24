@@ -594,3 +594,91 @@ val response = client.chat {
 - MockEngine validates request body: `stream=true`, `model` passthrough
 - Manual Flow creation: `flowOf(...)` for testing extension functions in isolation
 - Comprehensive edge cases: null handling, empty collections, multiple usage objects
+
+## [2026-03-25 02:45:24] Task 16: Tool Calling DSL
+
+### Pattern Applied
+- 4-level nested DSL: Tools → Function → Parameters → Property
+- JSON Schema generation via buildJsonObject
+- @OpenRouterDslMarker on all builders
+
+### JSON Schema Generation
+- type: "object" at root
+- properties: map of property name → schema
+- required: array of required property names
+
+### Builder Hierarchy
+1. **ToolsBuilder**: Top-level builder with `function(name, block)` method
+   - Accumulates FunctionTool instances in mutable list
+   - Returns immutable List<FunctionTool> via build()
+2. **FunctionToolBuilder**: Second level with `description` property and `parameters(block)` method
+   - Sets type = "function" in build()
+   - Nests JsonSchemaBuilder for parameters
+3. **JsonSchemaBuilder**: Third level with `property(name, type, block)` and `required(names)` methods
+   - Accumulates properties in mutable map
+   - Accumulates required field names in mutable list
+   - Builds JSON Schema object with type="object", properties={...}, required=[...]
+4. **PropertyBuilder**: Leaf level with `description` property
+   - Builds property schema with type and optional description
+
+### Integration with ChatRequestBuilder
+- Added `fun tools(block: ToolsBuilder.() -> Unit)` method
+- Pattern: `this.tools = ToolsBuilder().apply(block).build()`
+- Reuses existing `tools: List<FunctionTool>?` property from Task 14
+
+### Key Learnings
+- **Nested DSL requires @DslMarker**: Applied to all 4 builder classes to prevent scope leakage
+- **JSON Schema builder must produce valid format**: type="object" root, properties map, required array
+- **Property builders accumulate into map**: `properties[name] = PropertyBuilder(type).apply(block).build()`
+- **L1 FunctionTool.type must be set**: Changed from nullable to required field ("function")
+- **Test pattern**: Comprehensive coverage of all DSL levels, multiple properties, multiple functions, optional fields
+
+### TDD Process
+- **RED phase**: Wrote 13 comprehensive tests first covering all DSL levels and edge cases
+- **GREEN phase**: Implemented PropertyBuilder → JsonSchemaBuilder → FunctionToolBuilder → ToolsBuilder in order
+- **Integration**: Modified ChatRequestBuilder to add tools(block) method
+- **Result**: All tests passed on first run after implementation
+- **No regressions**: Full test suite passes
+
+### Files Created
+- src/main/kotlin/dev/toliner/openrouter/l2/tools/PropertyBuilder.kt
+- src/main/kotlin/dev/toliner/openrouter/l2/tools/JsonSchemaBuilder.kt
+- src/main/kotlin/dev/toliner/openrouter/l2/tools/FunctionToolBuilder.kt
+- src/main/kotlin/dev/toliner/openrouter/l2/tools/ToolsBuilder.kt
+- src/test/kotlin/dev/toliner/openrouter/l2/tools/ToolDslTest.kt
+
+### Files Modified
+- src/main/kotlin/dev/toliner/openrouter/l2/chat/ChatRequestBuilder.kt (added tools method, imported ToolsBuilder)
+
+### API Example
+```kotlin
+val response = client.chat {
+    model = "openai/gpt-4o"
+    userMessage("What's the weather in Tokyo?")
+    tools {
+        function("get_weather") {
+            description = "Get the current weather"
+            parameters {
+                property("location", "string") {
+                    description = "The city name"
+                }
+                required("location")
+            }
+        }
+    }
+    toolChoice = ToolChoice.Mode("auto")
+}
+```
+
+### ToolChoice Variants Support
+- **ToolChoice.Mode("auto")**: Auto tool selection
+- **ToolChoice.Mode("none")**: Disable tools
+- **ToolChoice.Mode("required")**: Force tool call
+- **ToolChoice.Function(function)**: Select specific function
+
+### Commit Readiness
+- ✅ All implementation files created
+- ✅ All test files created
+- ✅ Tests pass (13 tool DSL tests + all previous tests)
+- ✅ No regressions
+- ✅ Ready for commit: `feat(l2): add tool calling DSL`
