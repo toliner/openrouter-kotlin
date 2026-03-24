@@ -1,0 +1,22 @@
+Task 15: Stream DSL - Flow Extension Evidence
+===============================================
+
+Test Results:
+- collectContent(): Successfully concatenates delta.content from chunks
+- collectContentAndUsage(): Returns Pair<String, Usage> with last usage
+
+Implementation:
+- Flow.fold("") pattern for accumulation
+- Null-safe handling for missing choices/content
+- Default Usage(0, 0, 0) when no usage provided
+- Last usage wins when multiple usage objects present
+
+Test Coverage:
+✓ collectContent with multiple chunks
+✓ collectContent with null content
+✓ collectContent with empty choices list
+✓ collectContentAndUsage with usage
+✓ collectContentAndUsage without usage
+✓ collectContentAndUsage with multiple usage (last wins)
+
+All tests PASS.

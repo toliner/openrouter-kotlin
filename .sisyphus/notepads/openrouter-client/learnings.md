@@ -324,3 +324,273 @@ RED → GREEN cycle followed:
 
 ### Evidence
 - .sisyphus/evidence/task-10-keys-crud.txt: Full test suite output showing all 14 keys tests passing (8 KeyTypesTest + 6 KeysApiTest)
+
+## [2026-03-22 08:43] Task 11: Guardrails CRUD + Assignments
+
+### Pattern Applied
+- **8 endpoints total**: 5 CRUD operations + 3 assignment operations
+- **Nested path pattern**: `/guardrails/{id}/assignments` and `/guardrails/{id}/assignments/{assignmentId}`
+- **Two DELETE 204 operations**: delete guardrail, remove assignment
+- Followed Task 10 KeysApi pattern exactly for CRUD operations
+
+### Type Definitions
+- **Guardrail**: id, name, description?, config (JsonObject?), created_at, updated_at?
+- **GuardrailAssignment**: id, guardrail_id, target_type, target_id, created_at
+- **CreateGuardrailRequest**: name, description?, config?
+- **UpdateGuardrailRequest**: name?, description?, config? (all optional for partial PATCH)
+- **AddAssignmentRequest**: target_type, target_id
+
+### Test Coverage
+- **GuardrailTypesTest**: 12 tests covering all type serialization/deserialization
+  - Guardrail with all/minimal fields
+  - GuardrailAssignment with all fields
+  - Request types with all/partial fields
+  - Verified partial PATCH omits null fields from JSON
+- **GuardrailsApiTest**: 9 tests covering all 8 endpoints + partial update variant
+  - All HTTP methods validated: GET, POST, PATCH, DELETE
+  - All URL paths validated including nested /assignments paths
+  - Request body JSON structure validated
+  - DELETE 204 No Content handling for both delete operations
+
+### Integration
+- Added `val guardrails: GuardrailsApi` to OpenRouterClient
+- Consistent with existing API structure (chat, models, embeddings, generation, account, keys)
+
+### Key Learnings
+- **JsonObject for flexible config**: Used `kotlinx.serialization.json.JsonObject` for guardrail config field to allow flexible schema without type constraints
+- **Nested path pattern**: Assignment endpoints use `/guardrails/{id}/assignments` base path - reusable pattern for future nested resources
+- **Two DELETE operations in one API**: Both `delete(id)` and `removeAssignment(id, assignmentId)` use same `response.throwIfErrorStatus()` pattern
+- **Assignment target types**: "api_key" and "model" are primary target types for guardrail assignments
+
+### TDD Discipline
+- **RED phase first**: Wrote all tests before implementation (21 tests total)
+- **GREEN phase**: Implemented types → API → client integration
+- **Result**: All tests passed on first run, no refactoring needed
+- **No regressions**: Full test suite (all prior tasks) still passes
+
+### Test Evidence
+- Evidence saved to `.sisyphus/evidence/task-11-guardrails.txt`
+- 21 tests total: 12 type tests + 9 API tests
+- All passed with 0 failures, 0 errors
+
+### Commit Readiness
+- ✅ All implementation files created
+- ✅ All test files created
+- ✅ Tests pass
+- ✅ No regressions
+- ✅ Ready for commit: `feat(l1/guardrails): add guardrails CRUD and assignments`
+
+## [2026-03-22] Task 12: Providers + OAuth
+
+### Pattern Applied
+- 1 GET endpoint (providers list with wrapper response)
+- 2 POST endpoints (OAuth PKCE flow: createAuthCode for authorization URL, exchangeCode for API key)
+- OAuth PKCE flow types: request/response pairs with optional PKCE parameters
+
+### Test Coverage
+- ProviderTypesTest: Provider type deserialization with optional fields
+- OAuthTypesTest: OAuth request/response serialization including CodeChallengeMethod enum
+- ProvidersApiTest: MockEngine validation for GET /providers with data wrapper
+- AuthApiTest: MockEngine tests for both POST endpoints (createAuthCode and exchangeCode)
+
+### Integration
+- Added providers and auth properties to OpenRouterClient
+- ProvidersApi wraps response in ProvidersResponse to handle {data: [...]} structure
+- AuthApi provides createAuthCode() and exchangeCode() methods
+
+### Key Learnings
+- Providers endpoint returns {data: [Provider]} wrapper (unlike guardrails which returns [Guardrail] directly)
+- OAuth PKCE flow has two steps: 
+  1. POST /auth/keys/code (request with callback_url, optional PKCE params) → {data: {authorization_url}}
+  2. POST /auth/keys (request with code, optional code_verifier) → {key, user_id}
+- CodeChallengeMethod enum uses @SerialName for "S256" and "plain" values
+- All OAuth parameters (code_challenge, code_verifier, code_challenge_method, limit) are optional
+- AuthCodeResponse uses nested data structure: {data: {authorization_url}}
+- AuthKeyResponse is flat: {key, user_id}
+
+### Type Definitions
+**Provider**: name, slug, privacy_policy_url, terms_of_service_url, status_page_url (all URLs optional)
+**OAuth types**:
+- AuthCodeRequest: callback_url, code_challenge?, code_challenge_method?, limit?
+- AuthCodeResponse: {data: {authorization_url}}
+- AuthKeyRequest: code, code_verifier?, code_challenge_method?
+- AuthKeyResponse: key, user_id?
+- CodeChallengeMethod: S256 | plain
+
+### Evidence
+All tests pass - saved to .sisyphus/evidence/task-12-providers-oauth.txt
+
+## [2026-03-24 08:49:48] Task 12: Providers + OAuth (Implementation Verification)
+
+### Context
+Task 12 implementation was already complete from a previous session. This session verified all components and ran full test suite to confirm correctness.
+
+### Verification Results
+- ✅ RED phase: All 4 test files exist and comprehensive
+  - ProviderTypesTest: 2 tests (full/minimal fields)
+  - OAuthTypesTest: 8 tests (all 4 types + enum + serialization variants)
+  - ProvidersApiTest: 1 test (MockEngine GET validation)
+  - AuthApiTest: 4 tests (both POST endpoints, full/minimal variants)
+
+- ✅ GREEN phase: All implementations complete
+  - Provider.kt: @Serializable data class with @SerialName on all fields
+  - AuthKey.kt: 4 OAuth types + CodeChallengeMethod enum
+  - ProvidersApi.kt: list() with ProvidersResponse wrapper
+  - AuthApi.kt: createAuthCode() and exchangeCode() with contentType(Application.Json)
+  - OpenRouterClient.kt: providers and auth properties integrated
+
+- ✅ Full test suite: BUILD SUCCESSFUL, 4 actionable tasks up-to-date
+- ✅ Evidence saved to .sisyphus/evidence/task-12-providers-oauth.txt
+
+### Pattern Reconfirmed
+1. **GET endpoint with wrapper**: ProvidersApi uses private ProvidersResponse type to handle {data: [...]} structure
+2. **POST endpoints**: Both auth methods use contentType(ContentType.Application.Json) before setBody()
+3. **OAuth PKCE naming**: 
+   - AuthCodeRequest/Response for POST /auth/keys/code (create authorization)
+   - AuthKeyRequest/Response for POST /auth/keys (exchange code for key)
+
+### TDD Discipline
+This task demonstrates the value of TDD: all tests existed from a prior session, making verification instant. No implementation changes needed.
+
+### Completion Status
+Task 12 is 100% complete and verified. Ready for commit (if not already committed).
+
+
+## [2026-03-24T08:59:27+09:00] Task 13: Responses API (beta)
+
+### Pattern Applied
+- @ExperimentalOpenRouterApi annotation for beta stability marker
+- Union type for input field (String | Array<InputItem>)
+- Sealed class with polymorphic serialization for InputItem variants
+- POST-only endpoint (no streaming support)
+
+### Type Definitions
+- CreateResponseRequest: input union, model, instructions, tools, temperature, topP, maxTokens
+- ResponseObject: response structure with choices array
+- InputItem: sealed class with Message, FunctionCallOutput variants
+- ResponseTool: tool definition with type, name, description, parameters
+
+### Annotation Usage
+- @ExperimentalOpenRouterApi on ALL public types in responses package
+- @ExperimentalOpenRouterApi on ResponsesApi class and methods
+- @ExperimentalOpenRouterApi on OpenRouterClient.responses property
+- Warnings appear in compile output for beta API usage (expected behavior)
+
+### Implementation Details
+- ResponseInput union type uses custom KSerializer pattern from Task 2
+- InputItem uses kotlinx.serialization polymorphic serialization with @SerialName
+- ResponseInputSerializer handles JsonPrimitive (String) and JsonArray variants
+- Test helper bodyAsText() extension required in each test file (private scope)
+
+### Key Learnings
+- Beta API requires explicit opt-in via annotation at all public boundaries
+- Input union type reuses established union serializer pattern
+- Streaming NOT supported (Responses API has different SSE format than Chat)
+- Test file requires private extension function for request body access
+- @OptIn(ExperimentalOpenRouterApi::class) required on test classes using beta API
+
+## [2026-03-25T09:15:00+09:00] Task 14: Chat DSL Builder
+
+### Pattern Applied
+- @DslMarker annotation for scope isolation in nested DSL contexts
+- Builder pattern: mutable builder → immutable result via `build()`
+- Extension function on OpenRouterClient for ergonomic API surface
+- chatRequest { } for standalone request builder
+- client.chat { } for direct API call with DSL
+
+### DSL Design
+- **chatRequest { } function**: Creates ChatCompletionRequest from DSL
+- **client.chat { } extension**: Combines DSL with API call in one expression
+- **Message builders**: systemMessage, userMessage, assistantMessage, toolMessage
+- **All fields supported**: All ChatCompletionRequest fields exposed as mutable properties
+- **Validation in build()**: requireNotNull for model, require for non-empty messages
+
+### Implementation Details
+- @OpenRouterDslMarker prevents scope leakage (outer builder properties inaccessible in nested contexts)
+- ChatRequestBuilder accumulates messages in private mutableList
+- Two userMessage variants: String (creates Content.Text) and lambda returning Content
+- stream field forced to false (non-streaming DSL as per Task 14)
+- assistantMessage accepts optional toolCalls parameter
+- build() returns immutable ChatCompletionRequest
+
+### Key Learnings
+- **@DslMarker critical**: Without it, nested DSL contexts could accidentally reference outer scope properties
+- **Builder validation**: Use requireNotNull/require in build() instead of constructor to allow gradual property assignment
+- **Extension functions**: `suspend fun OpenRouterClient.chat(block)` provides natural API - reads like "client.chat { model = ... }"
+- **Mutable builder → immutable result**: Standard pattern for type-safe DSL builders in Kotlin
+- **Two userMessage overloads**: String convenience + lambda flexibility for Content.Parts use cases
+
+### Test Coverage
+- Minimal request (model + single user message)
+- Full request (all optional fields + multiple message types)
+- Message builder tests for each type (system, user, assistant, tool)
+- userMessage lambda variant (Content.Text via lambda)
+- client.chat { } integration test with MockEngine
+- Validation tests (missing model, missing messages)
+
+### TDD Process
+- **RED phase**: Wrote comprehensive test suite first, verified compilation errors
+- **GREEN phase**: Implemented @DslMarker → ChatRequestBuilder → ChatDsl.kt
+- **Result**: All tests passed on first run after implementation
+- **No regressions**: Full test suite passes
+
+### Files Created
+- src/main/kotlin/dev/toliner/openrouter/l2/OpenRouterDslMarker.kt
+- src/main/kotlin/dev/toliner/openrouter/l2/chat/ChatRequestBuilder.kt
+- src/main/kotlin/dev/toliner/openrouter/l2/chat/ChatDsl.kt
+- src/test/kotlin/dev/toliner/openrouter/l2/chat/ChatDslTest.kt
+
+### Evidence
+- .sisyphus/evidence/task-14-dsl-minimal.txt: DSL-specific tests passing
+- .sisyphus/evidence/task-14-dsl-integration.txt: Full test suite passing (no regressions)
+
+### API Example
+```kotlin
+val response = client.chat {
+    model = "openai/gpt-4o"
+    temperature = 0.7
+    systemMessage("You are a helpful assistant.")
+    userMessage("What is Kotlin?")
+}
+```
+
+### Commit Readiness
+- ✅ All implementation files created
+- ✅ All test files created  
+- ✅ Tests pass
+- ✅ No regressions
+- ✅ Ready for commit: `feat(l2): add chat DSL builder`
+
+## [2026-03-25 01:20] Task 15: Stream DSL Builder
+
+### Pattern Applied
+- **chatStream { }**: Extension reuses ChatRequestBuilder from Task 14
+- Auto-sets `stream=true` via `.build().copy(stream = true)`
+- Returns `Flow<ChatCompletionChunk>` from existing `chat.stream(request)`
+- No modifications needed to ChatRequestBuilder (true reuse)
+
+### Flow Extensions Implementation
+- **collectContent()**: `Flow.fold("")` accumulator for `delta.content`
+  - Pattern: `fold("") { acc, chunk -> acc + (chunk.choices.firstOrNull()?.delta?.content ?: "") }`
+  - Null-safe: handles missing choices, null content
+- **collectContentAndUsage()**: Tracks last usage chunk during fold
+  - Pattern: `var lastUsage: Usage? = null` + `fold` + side-effect capture
+  - Returns `Pair<String, Usage>` with default Usage(0,0,0) if none provided
+  - Last usage wins when multiple chunks contain usage
+
+### TDD Execution
+- **RED Phase**: Tests written first with unresolved references
+- **GREEN Phase**: Implementation passed all tests immediately
+- Test coverage: 8 test cases covering edge cases (null content, empty choices, multiple usage)
+
+### Key Learnings
+- **Immutable request modification**: `.copy(stream = true)` pattern perfect for DSL overrides
+- **Flow.fold() for accumulation**: Clean pattern for aggregating streaming chunks
+- **Side-effect tracking in fold**: Capture auxiliary data (usage) while accumulating content
+- **Reuse builder with extension**: No need to modify existing builder, wrap with extension
+- **JsonPrimitive access**: Use `.content` property, not `.boolean` (e.g., `jsonPrimitive.content.toBoolean()`)
+
+### Test Structure
+- MockEngine validates request body: `stream=true`, `model` passthrough
+- Manual Flow creation: `flowOf(...)` for testing extension functions in isolation
+- Comprehensive edge cases: null handling, empty collections, multiple usage objects
