@@ -1,5 +1,6 @@
 package dev.toliner.openrouter.client
 
+import dev.toliner.openrouter.ExperimentalOpenRouterApi
 import dev.toliner.openrouter.error.ErrorBody
 import dev.toliner.openrouter.error.ErrorResponse
 import dev.toliner.openrouter.error.errorFromStatus
@@ -34,6 +35,9 @@ class OpenRouterClient(
     val guardrails: GuardrailsApi = GuardrailsApi(httpClient, config)
     val providers: ProvidersApi = ProvidersApi(httpClient, config)
     val auth: AuthApi = AuthApi(httpClient, config)
+    
+    @ExperimentalOpenRouterApi
+    val responses: ResponsesApi = ResponsesApi(httpClient, config)
 
     override fun close() {
         httpClient.close()
