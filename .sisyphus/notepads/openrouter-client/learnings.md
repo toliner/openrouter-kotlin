@@ -702,3 +702,16 @@ val response = client.chat {
 - `ProviderPreferences` already defines `@SerialName` mappings, so DSL just needs to populate the model
 - JSON assertions can verify snake_case names like `allow_fallbacks` and `preferred_min_throughput`
 - DSL builder lives in `l2.routing` and is imported by `ChatRequestBuilder`
+
+## [2026-03-25] Task 18: In-band Error Detector Consistency
+
+### Pattern Applied
+- Non-streaming in-band error detection now matches SSE parsing logic exactly:
+  - `finishReason == "error" && error != null`
+
+### Verification
+- `bun run build` / `bun test` were unavailable in this environment (`bun` not installed)
+- Verified with `./gradlew build test` instead; both build and tests passed
+
+### Key Learnings
+- Keep `InBandErrorDetector.kt` aligned with `SseParser.kt` to avoid false positives from non-error finish reasons
