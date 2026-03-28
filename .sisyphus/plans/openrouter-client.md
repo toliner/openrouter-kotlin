@@ -1251,7 +1251,7 @@ Wave FINAL (全タスク完了後 — 4並列レビュー → ユーザー承認
   - Files: `src/main/kotlin/dev/toliner/openrouter/l1/generation/`, `src/main/kotlin/dev/toliner/openrouter/l1/account/`, `src/main/kotlin/dev/toliner/openrouter/client/GenerationApi.kt`, `src/main/kotlin/dev/toliner/openrouter/client/AccountApi.kt`
   - Pre-commit: `./gradlew test`
 
-- [ ] 10. Key管理CRUD
+- [x] 10. Key管理CRUD
 
   **What to do**:
   - TDD: テストから書く
@@ -1328,7 +1328,7 @@ Wave FINAL (全タスク完了後 — 4並列レビュー → ユーザー承認
   - Files: `src/main/kotlin/dev/toliner/openrouter/l1/keys/`, `src/main/kotlin/dev/toliner/openrouter/client/KeysApi.kt`
   - Pre-commit: `./gradlew test`
 
-- [ ] 11. Guardrails CRUD + アサインメント
+- [x] 11. Guardrails CRUD + アサインメント
 
   **What to do**:
   - TDD: テストから書く
@@ -1402,7 +1402,7 @@ Wave FINAL (全タスク完了後 — 4並列レビュー → ユーザー承認
   - Files: `src/main/kotlin/dev/toliner/openrouter/l1/guardrails/`, `src/main/kotlin/dev/toliner/openrouter/client/GuardrailsApi.kt`
   - Pre-commit: `./gradlew test`
 
-- [ ] 12. Providers + OAuth
+- [x] 12. Providers + OAuth
 
   **What to do**:
   - TDD: テストから書く
@@ -1472,7 +1472,7 @@ Wave FINAL (全タスク完了後 — 4並列レビュー → ユーザー承認
   - Files: `src/main/kotlin/dev/toliner/openrouter/l1/providers/`, `src/main/kotlin/dev/toliner/openrouter/l1/auth/`, `src/main/kotlin/dev/toliner/openrouter/client/ProvidersApi.kt`, `src/main/kotlin/dev/toliner/openrouter/client/AuthApi.kt`
   - Pre-commit: `./gradlew test`
 
-- [ ] 13. Responses API (beta) L1
+- [x] 13. Responses API (beta) L1
 
   **What to do**:
   - TDD: テストから書く
@@ -1545,7 +1545,7 @@ Wave FINAL (全タスク完了後 — 4並列レビュー → ユーザー承認
   - Files: `src/main/kotlin/dev/toliner/openrouter/l1/responses/`, `src/main/kotlin/dev/toliner/openrouter/client/ResponsesApi.kt`
   - Pre-commit: `./gradlew test`
 
-- [ ] 14. Chat DSLビルダー (non-stream)
+- [x] 14. Chat DSLビルダー (non-stream)
 
   **What to do**:
   - TDD: テストから書く
@@ -1658,7 +1658,7 @@ Wave FINAL (全タスク完了後 — 4並列レビュー → ユーザー承認
   - Files: `src/main/kotlin/dev/toliner/openrouter/l2/`, `src/test/kotlin/dev/toliner/openrouter/l2/chat/`
   - Pre-commit: `./gradlew test`
 
-- [ ] 15. Stream DSLビルダー
+- [x] 15. Stream DSLビルダー
 
   **What to do**:
   - TDD: テストから書く
@@ -1738,7 +1738,7 @@ Wave FINAL (全タスク完了後 — 4並列レビュー → ユーザー承認
   - Files: `src/main/kotlin/dev/toliner/openrouter/l2/stream/`, `src/test/kotlin/dev/toliner/openrouter/l2/stream/`
   - Pre-commit: `./gradlew test`
 
-- [ ] 16. Tool Calling DSL
+- [x] 16. Tool Calling DSL
 
   **What to do**:
   - TDD: テストから書く
@@ -1862,7 +1862,7 @@ Wave FINAL (全タスク完了後 — 4並列レビュー → ユーザー承認
   - Files: `src/main/kotlin/dev/toliner/openrouter/l2/tools/`, `src/test/kotlin/dev/toliner/openrouter/l2/tools/`
   - Pre-commit: `./gradlew test`
 
-- [ ] 17. Provider Routing DSL
+- [x] 17. Provider Routing DSL
 
   **What to do**:
   - TDD: テストから書く
