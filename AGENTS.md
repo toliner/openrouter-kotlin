@@ -2,9 +2,6 @@
 
 Kotlin client library for the OpenRouter API.
 
-## ExecPlans
-When writing complex features or significant refactors, use an ExecPlan (as described in `.agent/PLANS.md`) from design to implementation.
-
 ## Architecture
 
 ### Layer Model
@@ -81,3 +78,8 @@ All source code lives under `dev.toliner.openrouter` in `src/main/kotlin/` and `
 3. Default optional fields to `null`.
 4. If the type has JSON union variants, create a sealed interface + custom serializer in `serialization/`.
 5. Add round-trip serialization tests.
+
+## Finalize
+On complete task,
+1. write after action report to .sisyphus/notepads/${task_name}/aar.md
+2. commit all changes
