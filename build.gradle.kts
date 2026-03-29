@@ -1,7 +1,10 @@
+import org.jetbrains.dokka.gradle.engine.parameters.VisibilityModifier
+
 plugins {
     kotlin("jvm") version "2.3.10"
     kotlin("plugin.serialization") version "2.3.10"
     `maven-publish`
+    id("org.jetbrains.dokka") version "2.1.0"
 }
 
 group = "dev.toliner"
@@ -29,11 +32,53 @@ dependencies {
 
 kotlin {
     jvmToolchain(25)
+    explicitApi()
 }
 
 java {
     withSourcesJar()
-    withJavadocJar()
+}
+
+dokka {
+    moduleName.set("openrouter-kotlin")
+    moduleVersion.set(project.version.toString())
+
+    dokkaPublications.html {
+        outputDirectory.set(layout.buildDirectory.dir("dokka/html"))
+        suppressObviousFunctions.set(true)
+        suppressInheritedMembers.set(false)
+        includes.from("MODULE.md")
+    }
+
+    dokkaSourceSets.main {
+        documentedVisibilities(VisibilityModifier.Public)
+
+        sourceLink {
+            localDirectory.set(file("src/main/kotlin"))
+            remoteUrl("https://github.com/toliner/openrouter-kotlin/tree/main/src/main/kotlin")
+            remoteLineSuffix.set("#L")
+        }
+
+        externalDocumentationLinks.register("kotlinx-serialization") {
+            url("https://kotlinlang.org/api/kotlinx.serialization/")
+        }
+
+        externalDocumentationLinks.register("ktor") {
+            url("https://api.ktor.io/")
+        }
+
+        jdkVersion.set(17)
+    }
+
+    pluginsConfiguration.html {
+        footerMessage.set("© openrouter-kotlin contributors. Apache 2.0 License.")
+    }
+}
+
+val dokkaHtmlJar by tasks.registering(Jar::class) {
+    description = "Dokka HTML documentation JAR"
+    from(tasks.named("dokkaGeneratePublicationHtml").map { it.outputs })
+    archiveClassifier.set("javadoc")
 }
 
 tasks.withType<Test> {
@@ -48,6 +93,7 @@ publishing {
     publications {
         create<MavenPublication>("maven") {
             from(components["java"])
+            artifact(dokkaHtmlJar)
 
             pom {
                 name.set("openrouter-kotlin")

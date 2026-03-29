@@ -11,4 +11,4 @@ package dev.toliner.openrouter
     AnnotationTarget.PROPERTY,
     AnnotationTarget.TYPEALIAS
 )
-annotation class ExperimentalOpenRouterApi
+public annotation class ExperimentalOpenRouterApi

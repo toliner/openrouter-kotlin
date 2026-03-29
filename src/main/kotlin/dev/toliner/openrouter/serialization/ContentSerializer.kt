@@ -15,25 +15,25 @@ import kotlinx.serialization.json.jsonArray
 import kotlinx.serialization.json.jsonPrimitive
 
 @Serializable(with = ContentSerializer::class)
-sealed interface Content {
+public sealed interface Content {
     @Serializable
-    data class Text(val value: String) : Content
+    public data class Text(val value: String) : Content
     
     @Serializable
-    data class Parts(val parts: List<ContentPart>) : Content
+    public data class Parts(val parts: List<ContentPart>) : Content
 }
 
 @Serializable
-sealed interface ContentPart {
+public sealed interface ContentPart {
     @Serializable
     @SerialName("text")
-    data class TextPart(
+    public data class TextPart(
         @SerialName("text")
         val text: String
     ) : ContentPart
 }
 
-object ContentSerializer : KSerializer<Content> {
+internal object ContentSerializer : KSerializer<Content> {
     override val descriptor: SerialDescriptor = buildClassSerialDescriptor("Content")
     
     override fun deserialize(decoder: Decoder): Content {

@@ -17,7 +17,35 @@ import io.ktor.http.HttpHeaders
 import io.ktor.serialization.kotlinx.json.json
 import java.io.Closeable
 
-class OpenRouterClient(
+/**
+ * Main entry point for the OpenRouter API client.
+ *
+ * This class provides access to all OpenRouter API endpoints through dedicated API modules.
+ * It implements [Closeable] to manage the underlying HTTP client lifecycle. Always call [close]
+ * when done to release resources, or use the client within a `use` block.
+ *
+ * Example usage:
+ * ```kotlin
+ * val config = OpenRouterConfig(apiKey = "your-api-key")
+ * OpenRouterClient(CIO.create(), config).use { client ->
+ *     val response = client.chat.complete(chatRequest)
+ *     // ... use response
+ * }
+ * ```
+ *
+ * @property config The configuration for this client instance.
+ * @property chat API for chat completions (text generation with conversational context).
+ * @property models API for listing and querying available models.
+ * @property embeddings API for creating text embeddings.
+ * @property generation API for retrieving generation statistics.
+ * @property account API for account information (credits, key info, activity).
+ * @property keys API for managing API keys.
+ * @property guardrails API for managing content guardrails.
+ * @property providers API for listing available providers.
+ * @property auth API for authentication and key validation.
+ * @property responses API for the experimental Responses endpoint (requires [ExperimentalOpenRouterApi]).
+ */
+public class OpenRouterClient(
     engine: HttpClientEngine,
     internal val config: OpenRouterConfig
 ) : Closeable {
@@ -26,20 +54,25 @@ class OpenRouterClient(
         expectSuccess = false
     }
 
-    val chat: ChatApi = ChatApi(httpClient, config)
-    val models: ModelsApi = ModelsApi(httpClient, config)
-    val embeddings: EmbeddingsApi = EmbeddingsApi(httpClient, config)
-    val generation: GenerationApi = GenerationApi(httpClient, config)
-    val account: AccountApi = AccountApi(httpClient, config)
-    val keys: KeysApi = KeysApi(httpClient, config)
-    val guardrails: GuardrailsApi = GuardrailsApi(httpClient, config)
-    val providers: ProvidersApi = ProvidersApi(httpClient, config)
-    val auth: AuthApi = AuthApi(httpClient, config)
+    public val chat: ChatApi = ChatApi(httpClient, config)
+    public val models: ModelsApi = ModelsApi(httpClient, config)
+    public val embeddings: EmbeddingsApi = EmbeddingsApi(httpClient, config)
+    public val generation: GenerationApi = GenerationApi(httpClient, config)
+    public val account: AccountApi = AccountApi(httpClient, config)
+    public val keys: KeysApi = KeysApi(httpClient, config)
+    public val guardrails: GuardrailsApi = GuardrailsApi(httpClient, config)
+    public val providers: ProvidersApi = ProvidersApi(httpClient, config)
+    public val auth: AuthApi = AuthApi(httpClient, config)
     
     @ExperimentalOpenRouterApi
-    val responses: ResponsesApi = ResponsesApi(httpClient, config)
+    public val responses: ResponsesApi = ResponsesApi(httpClient, config)
 
-    override fun close() {
+    /**
+     * Closes the underlying HTTP client and releases all resources.
+     *
+     * After calling this method, the client should not be used for any further API calls.
+     */
+    public override fun close() {
         httpClient.close()
     }
 }

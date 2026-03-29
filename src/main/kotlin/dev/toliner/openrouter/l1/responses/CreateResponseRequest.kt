@@ -14,17 +14,46 @@ import kotlinx.serialization.json.JsonDecoder
 import kotlinx.serialization.json.JsonEncoder
 import kotlinx.serialization.json.JsonPrimitive
 
+/**
+ * Input format for a response request in the OpenRouter Responses API.
+ *
+ * This is an experimental API that mirrors OpenAI's responses endpoint. The input can be either
+ * a simple text string or a list of structured input items (messages and function call outputs).
+ *
+ * **Note:** This API is experimental and subject to change. It is marked with [ExperimentalOpenRouterApi].
+ *
+ * @see Text
+ * @see Items
+ * @see CreateResponseRequest
+ */
 @ExperimentalOpenRouterApi
 @Serializable(with = ResponseInputSerializer::class)
-sealed interface ResponseInput {
+public sealed interface ResponseInput {
+    /**
+     * Simple text input for a response request.
+     *
+     * @property value The text content to process
+     */
     @Serializable
-    data class Text(val value: String) : ResponseInput
+    public data class Text(val value: String) : ResponseInput
     
+    /**
+     * Structured input consisting of multiple items (messages and function call outputs).
+     *
+     * @property items List of input items including messages and function call outputs
+     *
+     * @see InputItem
+     */
     @Serializable
-    data class Items(val items: List<InputItem>) : ResponseInput
+    public data class Items(val items: List<InputItem>) : ResponseInput
 }
 
-object ResponseInputSerializer : KSerializer<ResponseInput> {
+/**
+ * Custom serializer for [ResponseInput] that handles JSON union type (string | array).
+ *
+ * Serializes [ResponseInput.Text] as a JSON string and [ResponseInput.Items] as a JSON array.
+ */
+public object ResponseInputSerializer : KSerializer<ResponseInput> {
     override val descriptor: SerialDescriptor = buildClassSerialDescriptor("ResponseInput")
     
     override fun deserialize(decoder: Decoder): ResponseInput {
@@ -64,9 +93,29 @@ object ResponseInputSerializer : KSerializer<ResponseInput> {
     }
 }
 
+/**
+ * Request body for creating a response using the OpenRouter Responses API.
+ *
+ * This is an experimental API similar to OpenAI's responses endpoint, allowing structured input
+ * with tool support and generation parameters.
+ *
+ * **Note:** This API is experimental and subject to change. It is marked with [ExperimentalOpenRouterApi].
+ *
+ * @property model Model identifier to use for generating the response
+ * @property input Input content as either text or structured items
+ * @property instructions Optional system instructions to guide the model's behavior
+ * @property tools Optional list of tools (functions) available to the model
+ * @property temperature Optional sampling temperature (0.0 to 2.0); higher values increase randomness
+ * @property topP Optional nucleus sampling parameter (0.0 to 1.0)
+ * @property maxTokens Optional maximum number of tokens to generate
+ *
+ * @see ResponseInput
+ * @see ResponseTool
+ * @see ResponseObject
+ */
 @ExperimentalOpenRouterApi
 @Serializable
-data class CreateResponseRequest(
+public data class CreateResponseRequest(
     @SerialName("model")
     val model: String,
     @SerialName("input")

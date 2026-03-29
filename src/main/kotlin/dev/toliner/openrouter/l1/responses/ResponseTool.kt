@@ -5,9 +5,25 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JsonObject
 
+/**
+ * Tool (function) definition for the OpenRouter Responses API.
+ *
+ * Defines a function that the model can call during response generation. This is an experimental
+ * API that mirrors OpenAI's function calling capabilities.
+ *
+ * **Note:** This API is experimental and subject to change. It is marked with [ExperimentalOpenRouterApi].
+ *
+ * @property type Type of tool (typically "function")
+ * @property name Name of the function
+ * @property description Optional human-readable description of what the function does
+ * @property parameters Optional JSON schema object defining the function's parameters
+ *
+ * @see CreateResponseRequest
+ * @see ResponseToolCall
+ */
 @ExperimentalOpenRouterApi
 @Serializable
-data class ResponseTool(
+public data class ResponseTool(
     @SerialName("type")
     val type: String,
     @SerialName("name")

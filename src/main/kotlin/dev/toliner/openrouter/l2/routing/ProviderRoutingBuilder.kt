@@ -4,15 +4,15 @@ import dev.toliner.openrouter.l1.chat.ProviderPreferences
 import dev.toliner.openrouter.l2.OpenRouterDslMarker
 
 @OpenRouterDslMarker
-class ProviderRoutingBuilder {
-    var order: List<String>? = null
-    var allowFallbacks: Boolean? = null
-    var requireParameters: Boolean? = null
-    var dataCollection: String? = null
-    var preferredMinThroughput: Int? = null
-    var ignore: List<String>? = null
+public class ProviderRoutingBuilder {
+    public var order: List<String>? = null
+    public var allowFallbacks: Boolean? = null
+    public var requireParameters: Boolean? = null
+    public var dataCollection: String? = null
+    public var preferredMinThroughput: Int? = null
+    public var ignore: List<String>? = null
 
-    fun build(): ProviderPreferences {
+    internal fun build(): ProviderPreferences {
         return ProviderPreferences(
             order = order,
             allowFallbacks = allowFallbacks,

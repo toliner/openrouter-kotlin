@@ -20,11 +20,36 @@ import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.flow
 
-class ChatApi(
+/**
+ * API for chat completions (conversational text generation).
+ *
+ * This API provides methods for generating text completions using OpenRouter's chat models.
+ * It supports both standard (complete) and streaming responses.
+ *
+ * Instances of this class are created internally by [OpenRouterClient].
+ * Access via [OpenRouterClient.chat].
+ *
+ * @see ChatCompletionRequest
+ * @see ChatCompletionResponse
+ * @see ChatCompletionChunk
+ */
+public class ChatApi internal constructor(
     private val httpClient: HttpClient,
     private val config: OpenRouterConfig
 ) {
-    suspend fun complete(request: ChatCompletionRequest): ChatCompletionResponse {
+    /**
+     * Creates a chat completion and returns the full response.
+     *
+     * This method calls the `/chat/completions` endpoint with `stream = false` and waits for
+     * the complete response. The response is checked for in-band errors before being returned.
+     *
+     * @param request The chat completion request containing model, messages, and generation parameters.
+     * @return The complete chat completion response.
+     * @throws dev.toliner.openrouter.error.OpenRouterException if the request fails or an error occurs.
+     * @see ChatCompletionRequest
+     * @see ChatCompletionResponse
+     */
+    public suspend fun complete(request: ChatCompletionRequest): ChatCompletionResponse {
         val response = httpClient.post("${config.baseUrl}/chat/completions") {
             applyOpenRouterHeaders(config)
             contentType(ContentType.Application.Json)
@@ -34,7 +59,22 @@ class ChatApi(
         return response.decodeBodyOrThrow<ChatCompletionResponse>().checkInBandError()
     }
 
-    fun stream(request: ChatCompletionRequest): Flow<ChatCompletionChunk> = flow {
+    /**
+     * Creates a streaming chat completion and returns a Flow of chunks.
+     *
+     * This method calls the `/chat/completions` endpoint with `stream = true` and returns
+     * a Flow that emits completion chunks as they arrive from the server via Server-Sent Events.
+     *
+     * The Flow will emit chunks until the stream is complete (indicated by a `[DONE]` message)
+     * or an error occurs.
+     *
+     * @param request The chat completion request containing model, messages, and generation parameters.
+     * @return A Flow emitting chat completion chunks as they arrive.
+     * @throws dev.toliner.openrouter.error.OpenRouterException if the request fails or an error occurs during streaming.
+     * @see ChatCompletionRequest
+     * @see ChatCompletionChunk
+     */
+    public fun stream(request: ChatCompletionRequest): Flow<ChatCompletionChunk> = flow {
         val response = httpClient.post("${config.baseUrl}/chat/completions") {
             applyOpenRouterHeaders(config)
             contentType(ContentType.Application.Json)

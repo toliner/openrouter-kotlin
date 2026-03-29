@@ -8,4 +8,4 @@ package dev.toliner.openrouter.l2
  * property access from wrong scopes.
  */
 @DslMarker
-annotation class OpenRouterDslMarker
+public annotation class OpenRouterDslMarker

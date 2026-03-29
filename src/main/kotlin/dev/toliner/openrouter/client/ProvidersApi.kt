@@ -6,11 +6,32 @@ import io.ktor.client.request.get
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
-class ProvidersApi(
+/**
+ * API for listing model providers.
+ *
+ * This API provides methods for querying information about the providers that
+ * supply models on the OpenRouter platform.
+ *
+ * Instances of this class are created internally by [OpenRouterClient].
+ * Access via [OpenRouterClient.providers].
+ *
+ * @see Provider
+ */
+public class ProvidersApi internal constructor(
     private val httpClient: HttpClient,
     private val config: OpenRouterConfig
 ) {
-    suspend fun list(): List<Provider> {
+    /**
+     * Lists all available providers.
+     *
+     * Calls the `/providers` endpoint to retrieve information about all model
+     * providers available on OpenRouter, including their capabilities and status.
+     *
+     * @return A list of [Provider] objects.
+     * @throws dev.toliner.openrouter.error.OpenRouterException if the request fails.
+     * @see Provider
+     */
+    public suspend fun list(): List<Provider> {
         val response: ProvidersResponse = getAndDecode("${config.baseUrl}/providers")
         return response.data
     }

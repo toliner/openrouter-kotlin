@@ -15,15 +15,15 @@ import kotlinx.serialization.json.jsonArray
 import kotlinx.serialization.json.jsonPrimitive
 
 @Serializable(with = StringOrArraySerializer::class)
-sealed interface StringOrArray {
+public sealed interface StringOrArray {
     @Serializable
-    data class Single(val value: String) : StringOrArray
+    public data class Single(val value: String) : StringOrArray
     
     @Serializable
-    data class Multiple(val values: List<String>) : StringOrArray
+    public data class Multiple(val values: List<String>) : StringOrArray
 }
 
-object StringOrArraySerializer : KSerializer<StringOrArray> {
+internal object StringOrArraySerializer : KSerializer<StringOrArray> {
     override val descriptor: SerialDescriptor = buildClassSerialDescriptor("StringOrArray")
     
     override fun deserialize(decoder: Decoder): StringOrArray {

@@ -10,12 +10,31 @@ import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
 import kotlinx.serialization.json.*
 
+/**
+ * Represents a message in a chat completion conversation.
+ *
+ * Messages in the OpenRouter Chat API have different structures depending on their role.
+ * This sealed class hierarchy models all supported message types with role-specific fields.
+ *
+ * @property role The role of the message sender (system, user, assistant, or tool).
+ *
+ * @see ChatCompletionRequest
+ * @see ChatCompletionResponse
+ */
 @Serializable(with = MessageSerializer::class)
-sealed class Message {
-    abstract val role: String
+public sealed class Message {
+    public abstract val role: String
     
+    /**
+     * A system message that provides instructions or context to the model.
+     *
+     * System messages are used to set the behavior, personality, or context for the conversation.
+     * They are typically placed at the beginning of the messages array.
+     *
+     * @property content The system instruction text.
+     */
     @Serializable
-    data class System(
+    public data class System(
         @SerialName("content")
         val content: String
     ) : Message() {
@@ -23,8 +42,18 @@ sealed class Message {
         override val role: String = "system"
     }
     
+    /**
+     * A user message containing input from the end user.
+     *
+     * User messages can contain either plain text or multimodal content (text with images).
+     * Use [Content.Text] for simple text messages or [Content.Parts] for multimodal input.
+     *
+     * @property content The user's message content, either text-only or multimodal.
+     *
+     * @see Content
+     */
     @Serializable
-    data class User(
+    public data class User(
         @SerialName("content")
         val content: Content
     ) : Message() {
@@ -32,8 +61,19 @@ sealed class Message {
         override val role: String = "user"
     }
     
+    /**
+     * An assistant message representing the model's response.
+     *
+     * Assistant messages can contain either text content, tool calls, or both.
+     * When the model decides to call tools, [toolCalls] will be populated and [content] may be null.
+     *
+     * @property content The assistant's text response, or null if only tool calls are present.
+     * @property toolCalls List of tool calls requested by the model, if any.
+     *
+     * @see ToolCall
+     */
     @Serializable
-    data class Assistant(
+    public data class Assistant(
         @SerialName("content")
         val content: String?,
         @SerialName("tool_calls")
@@ -43,8 +83,20 @@ sealed class Message {
         override val role: String = "assistant"
     }
     
+    /**
+     * A tool message containing the result of a tool call execution.
+     *
+     * After the model requests a tool call via [Assistant.toolCalls], the client must execute
+     * the tool and send back the result using this message type. The [toolCallId] must match
+     * the [ToolCall.id] from the assistant's message.
+     *
+     * @property toolCallId The ID of the tool call this message is responding to.
+     * @property content The tool execution result as a string (typically JSON).
+     *
+     * @see ToolCall
+     */
     @Serializable
-    data class Tool(
+    public data class Tool(
         @SerialName("tool_call_id")
         val toolCallId: String,
         @SerialName("content")
@@ -55,7 +107,7 @@ sealed class Message {
     }
 }
 
-object MessageSerializer : KSerializer<Message> {
+internal object MessageSerializer : KSerializer<Message> {
     override val descriptor: SerialDescriptor = buildClassSerialDescriptor("Message")
     
     override fun deserialize(decoder: Decoder): Message {
@@ -150,8 +202,23 @@ object MessageSerializer : KSerializer<Message> {
     }
 }
 
+/**
+ * Represents a tool call requested by the model in an assistant message.
+ *
+ * When the model decides to use a tool, it returns a tool call object specifying which
+ * function to invoke and with what arguments. The client must execute the function and
+ * return the result via a [Message.Tool].
+ *
+ * @property id Unique identifier for this tool call, used to associate responses.
+ * @property type The type of tool call, typically "function".
+ * @property function Details of the function to call.
+ *
+ * @see Message.Assistant
+ * @see Message.Tool
+ * @see FunctionCall
+ */
 @Serializable
-data class ToolCall(
+public data class ToolCall(
     @SerialName("id")
     val id: String,
     @SerialName("type")
@@ -160,8 +227,19 @@ data class ToolCall(
     val function: FunctionCall
 )
 
+/**
+ * Represents the function details in a tool call.
+ *
+ * Contains the function name and arguments as a JSON string. The client must parse
+ * the arguments JSON and execute the corresponding function.
+ *
+ * @property name The name of the function to call.
+ * @property arguments The function arguments as a JSON-encoded string.
+ *
+ * @see ToolCall
+ */
 @Serializable
-data class FunctionCall(
+public data class FunctionCall(
     @SerialName("name")
     val name: String,
     @SerialName("arguments")

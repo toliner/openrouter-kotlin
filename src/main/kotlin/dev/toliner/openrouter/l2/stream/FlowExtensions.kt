@@ -5,13 +5,13 @@ import dev.toliner.openrouter.l1.chat.Usage
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.fold
 
-suspend fun Flow<ChatCompletionChunk>.collectContent(): String {
+public suspend fun Flow<ChatCompletionChunk>.collectContent(): String {
     return fold("") { acc, chunk ->
         acc + (chunk.choices.firstOrNull()?.delta?.content ?: "")
     }
 }
 
-suspend fun Flow<ChatCompletionChunk>.collectContentAndUsage(): Pair<String, Usage> {
+public suspend fun Flow<ChatCompletionChunk>.collectContentAndUsage(): Pair<String, Usage> {
     var lastUsage: Usage? = null
     val content = fold("") { acc, chunk ->
         chunk.usage?.let { lastUsage = it }

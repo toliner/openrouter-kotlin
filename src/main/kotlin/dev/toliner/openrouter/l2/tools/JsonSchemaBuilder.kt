@@ -8,20 +8,20 @@ import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
 
 @OpenRouterDslMarker
-class JsonSchemaBuilder {
+public class JsonSchemaBuilder {
     private val properties = mutableMapOf<String, JsonObject>()
     private val requiredFields = mutableListOf<String>()
     
-    fun property(name: String, type: String, block: PropertyBuilder.() -> Unit = {}) {
+    public fun property(name: String, type: String, block: PropertyBuilder.() -> Unit = {}) {
         val prop = PropertyBuilder(type).apply(block).build()
         properties[name] = prop
     }
     
-    fun required(vararg names: String) {
+    public fun required(vararg names: String) {
         requiredFields.addAll(names)
     }
     
-    fun build(): JsonObject {
+    internal fun build(): JsonObject {
         return buildJsonObject {
             put("type", "object")
             put("properties", buildJsonObject {

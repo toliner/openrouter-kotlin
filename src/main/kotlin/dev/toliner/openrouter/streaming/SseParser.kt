@@ -12,7 +12,7 @@ import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.decodeFromJsonElement
 
-fun Flow<ServerSentEvent>.toChatCompletionChunks(json: Json): Flow<ChatCompletionChunk> =
+internal fun Flow<ServerSentEvent>.toChatCompletionChunks(json: Json): Flow<ChatCompletionChunk> =
     takeWhile { event ->
         val data = event.normalizedData() ?: return@takeWhile true
         data != "[DONE]"

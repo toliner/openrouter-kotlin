@@ -10,11 +10,11 @@ import io.ktor.client.request.setBody
 import io.ktor.http.ContentType
 import io.ktor.http.contentType
 
-class AuthApi(
+public class AuthApi internal constructor(
     private val httpClient: HttpClient,
     private val config: OpenRouterConfig
 ) {
-    suspend fun createAuthCode(request: AuthCodeRequest): AuthCodeResponse {
+    public suspend fun createAuthCode(request: AuthCodeRequest): AuthCodeResponse {
         val response = httpClient.post("${config.baseUrl}/auth/keys/code") {
             applyOpenRouterHeaders(config)
             contentType(ContentType.Application.Json)
@@ -23,7 +23,7 @@ class AuthApi(
         return response.decodeBodyOrThrow()
     }
 
-    suspend fun exchangeCode(request: AuthKeyRequest): AuthKeyResponse {
+    public suspend fun exchangeCode(request: AuthKeyRequest): AuthKeyResponse {
         val response = httpClient.post("${config.baseUrl}/auth/keys") {
             applyOpenRouterHeaders(config)
             contentType(ContentType.Application.Json)

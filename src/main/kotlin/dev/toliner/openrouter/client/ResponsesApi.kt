@@ -10,12 +10,12 @@ import io.ktor.http.ContentType
 import io.ktor.http.contentType
 
 @ExperimentalOpenRouterApi
-class ResponsesApi(
+public class ResponsesApi internal constructor(
     private val httpClient: HttpClient,
     private val config: OpenRouterConfig
 ) {
     @ExperimentalOpenRouterApi
-    suspend fun create(request: CreateResponseRequest): ResponseObject {
+    public suspend fun create(request: CreateResponseRequest): ResponseObject {
         val response = httpClient.post("${config.baseUrl}/responses") {
             applyOpenRouterHeaders(config)
             contentType(ContentType.Application.Json)

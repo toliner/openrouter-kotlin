@@ -9,57 +9,57 @@ import dev.toliner.openrouter.serialization.StringOrArray
 import dev.toliner.openrouter.serialization.ToolChoice
 
 @OpenRouterDslMarker
-class ChatRequestBuilder {
-    var model: String? = null
-    var temperature: Double? = null
-    var maxTokens: Int? = null
-    var topP: Double? = null
-    var topK: Int? = null
-    var frequencyPenalty: Double? = null
-    var presencePenalty: Double? = null
-    var repetitionPenalty: Double? = null
-    var seed: Int? = null
-    var stop: StringOrArray? = null
-    var tools: List<FunctionTool>? = null
-    var toolChoice: ToolChoice? = null
-    var responseFormat: ResponseFormat? = null
-    var provider: ProviderPreferences? = null
-    var trace: Trace? = null
-    var transforms: List<String>? = null
-    var route: String? = null
-    var models: List<String>? = null
+public class ChatRequestBuilder {
+    public var model: String? = null
+    public var temperature: Double? = null
+    public var maxTokens: Int? = null
+    public var topP: Double? = null
+    public var topK: Int? = null
+    public var frequencyPenalty: Double? = null
+    public var presencePenalty: Double? = null
+    public var repetitionPenalty: Double? = null
+    public var seed: Int? = null
+    public var stop: StringOrArray? = null
+    public var tools: List<FunctionTool>? = null
+    public var toolChoice: ToolChoice? = null
+    public var responseFormat: ResponseFormat? = null
+    public var provider: ProviderPreferences? = null
+    public var trace: Trace? = null
+    public var transforms: List<String>? = null
+    public var route: String? = null
+    public var models: List<String>? = null
     
     private val messages = mutableListOf<Message>()
     
-    fun systemMessage(content: String) {
+    public fun systemMessage(content: String) {
         messages.add(Message.System(content))
     }
     
-    fun userMessage(content: String) {
+    public fun userMessage(content: String) {
         messages.add(Message.User(Content.Text(content)))
     }
     
-    fun userMessage(block: () -> Content) {
+    public fun userMessage(block: () -> Content) {
         messages.add(Message.User(block()))
     }
     
-    fun assistantMessage(content: String, toolCalls: List<ToolCall>? = null) {
+    public fun assistantMessage(content: String, toolCalls: List<ToolCall>? = null) {
         messages.add(Message.Assistant(content = content, toolCalls = toolCalls))
     }
     
-    fun toolMessage(toolCallId: String, content: String) {
+    public fun toolMessage(toolCallId: String, content: String) {
         messages.add(Message.Tool(toolCallId = toolCallId, content = content))
     }
     
-    fun tools(block: ToolsBuilder.() -> Unit) {
+    public fun tools(block: ToolsBuilder.() -> Unit) {
         this.tools = ToolsBuilder().apply(block).build()
     }
 
-    fun provider(block: ProviderRoutingBuilder.() -> Unit) {
+    public fun provider(block: ProviderRoutingBuilder.() -> Unit) {
         this.provider = ProviderRoutingBuilder().apply(block).build()
     }
 
-    fun build(): ChatCompletionRequest {
+    internal fun build(): ChatCompletionRequest {
         requireNotNull(model) { "model is required" }
         require(messages.isNotEmpty()) { "at least one message is required" }
         

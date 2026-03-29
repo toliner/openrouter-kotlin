@@ -13,24 +13,24 @@ import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.jsonPrimitive
 
 @Serializable(with = ToolChoiceSerializer::class)
-sealed interface ToolChoice {
+public sealed interface ToolChoice {
     @Serializable
-    data class Mode(val value: String) : ToolChoice
+    public data class Mode(val value: String) : ToolChoice
     
     @Serializable
-    data class Function(
+    public data class Function(
         @SerialName("function")
         val function: FunctionChoice
     ) : ToolChoice
 }
 
 @Serializable
-data class FunctionChoice(
+public data class FunctionChoice(
     @SerialName("name")
     val name: String
 )
 
-object ToolChoiceSerializer : KSerializer<ToolChoice> {
+internal object ToolChoiceSerializer : KSerializer<ToolChoice> {
     override val descriptor: SerialDescriptor = buildClassSerialDescriptor("ToolChoice")
     
     override fun deserialize(decoder: Decoder): ToolChoice {

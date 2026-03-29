@@ -6,10 +6,10 @@ import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
 
 @OpenRouterDslMarker
-class PropertyBuilder(private val type: String) {
-    var description: String? = null
+public class PropertyBuilder(private val type: String) {
+    public var description: String? = null
     
-    fun build(): JsonObject {
+    internal fun build(): JsonObject {
         return buildJsonObject {
             put("type", type)
             description?.let { put("description", it) }
