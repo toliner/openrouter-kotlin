@@ -14,17 +14,57 @@ import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.jsonArray
 import kotlinx.serialization.json.jsonPrimitive
 
+/**
+ * Message content that can be either plain text or structured parts.
+ *
+ * Represents a JSON union type that deserializes from either:
+ * - A string value → [Content.Text]
+ * - An array of content parts → [Content.Parts]
+ *
+ * This type is used in chat messages and other API surfaces that accept multi-modal content.
+ *
+ * @see ContentPart
+ */
 @Serializable(with = ContentSerializer::class)
 public sealed interface Content {
+    /**
+     * Plain text content.
+     *
+     * Serializes to and from a JSON string.
+     *
+     * @property value The text content
+     */
     @Serializable
     public data class Text(val value: String) : Content
     
+    /**
+     * Structured multi-part content.
+     *
+     * Serializes to and from a JSON array of content parts. Used for messages containing
+     * multiple text segments, images, or other structured content.
+     *
+     * @property parts The list of content parts
+     * @see ContentPart
+     */
     @Serializable
     public data class Parts(val parts: List<ContentPart>) : Content
 }
 
+/**
+ * A single part of structured message content.
+ *
+ * Represents one element in a [Content.Parts] array. Each part has a specific type
+ * (text, image, etc.) and associated data.
+ *
+ * @see Content.Parts
+ */
 @Serializable
 public sealed interface ContentPart {
+    /**
+     * A text content part.
+     *
+     * @property text The text content
+     */
     @Serializable
     @SerialName("text")
     public data class TextPart(

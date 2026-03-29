@@ -12,11 +12,42 @@ import kotlinx.serialization.json.JsonEncoder
 import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.jsonPrimitive
 
+/**
+ * Controls which tool (function) the model should call.
+ *
+ * Represents a JSON union type that deserializes from either:
+ * - A string mode value (e.g., "auto", "none", "required") → [ToolChoice.Mode]
+ * - An object specifying a specific function → [ToolChoice.Function]
+ *
+ * This type is used in chat completion requests to control function calling behavior.
+ *
+ * @see FunctionChoice
+ */
 @Serializable(with = ToolChoiceSerializer::class)
 public sealed interface ToolChoice {
+    /**
+     * A string mode controlling automatic function calling behavior.
+     *
+     * Common values include:
+     * - "auto" — model decides whether to call a function
+     * - "none" — model will not call any function
+     * - "required" — model must call at least one function
+     *
+     * Serializes to and from a JSON string.
+     *
+     * @property value The mode string
+     */
     @Serializable
     public data class Mode(val value: String) : ToolChoice
     
+    /**
+     * Forces the model to call a specific function.
+     *
+     * Serializes to and from a JSON object with type "function" and a nested function specification.
+     *
+     * @property function The specific function to call
+     * @see FunctionChoice
+     */
     @Serializable
     public data class Function(
         @SerialName("function")
@@ -24,6 +55,14 @@ public sealed interface ToolChoice {
     ) : ToolChoice
 }
 
+/**
+ * Identifies a specific function by name.
+ *
+ * Used in [ToolChoice.Function] to force the model to call a particular function.
+ *
+ * @property name The name of the function to call
+ * @see ToolChoice.Function
+ */
 @Serializable
 public data class FunctionChoice(
     @SerialName("name")

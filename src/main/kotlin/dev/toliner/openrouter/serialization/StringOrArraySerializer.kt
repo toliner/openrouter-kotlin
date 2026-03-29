@@ -14,11 +14,35 @@ import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.jsonArray
 import kotlinx.serialization.json.jsonPrimitive
 
+/**
+ * A value that can be either a single string or an array of strings.
+ *
+ * Represents a JSON union type that deserializes from either:
+ * - A string value → [StringOrArray.Single]
+ * - An array of strings → [StringOrArray.Multiple]
+ *
+ * This pattern is common in OpenRouter API fields that accept either a single value
+ * or multiple values for convenience.
+ */
 @Serializable(with = StringOrArraySerializer::class)
 public sealed interface StringOrArray {
+    /**
+     * A single string value.
+     *
+     * Serializes to and from a JSON string.
+     *
+     * @property value The string value
+     */
     @Serializable
     public data class Single(val value: String) : StringOrArray
     
+    /**
+     * Multiple string values.
+     *
+     * Serializes to and from a JSON array of strings.
+     *
+     * @property values The list of string values
+     */
     @Serializable
     public data class Multiple(val values: List<String>) : StringOrArray
 }
