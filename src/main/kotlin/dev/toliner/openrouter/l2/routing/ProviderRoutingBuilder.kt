@@ -25,7 +25,7 @@ import dev.toliner.openrouter.l2.OpenRouterDslMarker
  * ```
  *
  * @see ProviderPreferences for the underlying l1 data model
- * @see ChatRequestBuilder.provider for usage in context
+ * @see dev.toliner.openrouter.l2.chat.ChatRequestBuilder for usage in chat request context
  */
 @OpenRouterDslMarker
 public class ProviderRoutingBuilder {

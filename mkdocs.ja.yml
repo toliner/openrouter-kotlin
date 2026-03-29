@@ -1,0 +1,78 @@
+site_name: openrouter-kotlin
+site_url: https://toliner.github.io/openrouter-kotlin/ja/
+site_description: OpenRouter API 用 Kotlin クライアントライブラリ
+site_author: toliner
+repo_url: https://github.com/toliner/openrouter-kotlin
+repo_name: toliner/openrouter-kotlin
+
+docs_dir: docs/ja
+site_dir: site/ja
+
+theme:
+  name: material
+  language: ja
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: deep purple
+      accent: purple
+      toggle:
+        icon: material/brightness-7
+        name: ダークモードに切り替え
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: deep purple
+      accent: purple
+      toggle:
+        icon: material/brightness-4
+        name: ライトモードに切り替え
+  features:
+    - navigation.tabs
+    - navigation.sections
+    - navigation.expand
+    - navigation.top
+    - search.suggest
+    - search.highlight
+    - content.code.copy
+    - content.tabs.link
+
+plugins:
+  - search:
+      lang: ja
+
+markdown_extensions:
+  - admonition
+  - pymdownx.details
+  - pymdownx.superfences
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.inlinehilite
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.snippets
+  - attr_list
+  - md_in_html
+  - toc:
+      permalink: true
+
+extra:
+  alternate:
+    - name: English
+      link: /openrouter-kotlin/en/
+      lang: en
+    - name: 日本語
+      link: /openrouter-kotlin/ja/
+      lang: ja
+
+nav:
+  - ホーム: index.md
+  - はじめに:
+      - インストール: getting-started/installation.md
+      - クイックスタート: getting-started/quick-start.md
+  - ガイド:
+      - チャット補完: guide/chat-completions.md
+      - ストリーミング: guide/streaming.md
+      - DSL ビルダー: guide/dsl-builders.md
+      - エラーハンドリング: guide/error-handling.md
+      - モデルとプロバイダー: guide/models-providers.md
+  - API リファレンス: api-reference.md

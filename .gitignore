@@ -48,3 +48,7 @@ bin/
 
 ### Mac OS ###
 .DS_Store
+
+### MkDocs ###
+site/
+_site/

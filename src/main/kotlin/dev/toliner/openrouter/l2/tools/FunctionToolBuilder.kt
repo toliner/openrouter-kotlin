@@ -53,8 +53,8 @@ public class FunctionToolBuilder(private val name: String) {
      * Defines the JSON Schema for the function's parameters using a DSL builder.
      *
      * The parameters schema describes the structure, types, and constraints of the function's
-     * input arguments. Use [property] to define individual parameters and [required] to mark
-     * which ones are mandatory.
+     * input arguments. Use [JsonSchemaBuilder.property] to define individual parameters and
+     * [JsonSchemaBuilder.required] to mark which ones are mandatory.
      *
      * Example:
      * ```kotlin
