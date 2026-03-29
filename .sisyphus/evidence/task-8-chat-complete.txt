@@ -1,5 +1,0 @@
-Task 8 QA Scenario 1
-Scenario: Chat Completions non-stream request/response with URL・method・headers validation.
-Test: dev.toliner.openrouter.client.OpenRouterClientTest > "chat complete sends POST with expected URL and headers"
-Command: ./gradlew test --tests "dev.toliner.openrouter.client.OpenRouterClientTest"
-Result: PASS (BUILD SUCCESSFUL)

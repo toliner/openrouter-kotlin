@@ -1,5 +1,0 @@
-Task 8 QA Scenario 5
-Scenario: stream() returns Flow<ChatCompletionChunk> and forces stream=true in request body.
-Test: dev.toliner.openrouter.client.OpenRouterClientTest > "chat stream returns chunks and forces stream=true"
-Command: ./gradlew test --tests "dev.toliner.openrouter.client.OpenRouterClientTest"
-Result: PASS (BUILD SUCCESSFUL)

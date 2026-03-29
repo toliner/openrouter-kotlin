@@ -1,3 +1,0 @@
-Command: ./gradlew test --tests "dev.toliner.openrouter.l1.embeddings.*"
-Result: BUILD SUCCESSFUL
-Files: EmbeddingRequest.kt, EmbeddingData.kt, EmbeddingResponse.kt, EmbeddingTypesTest.kt

@@ -1,1 +1,0 @@
-Task 7 evidence: ./gradlew test --tests "dev.toliner.openrouter.l1.embeddings.*" => BUILD SUCCESSFUL

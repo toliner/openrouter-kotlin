@@ -1,3 +1,6 @@
+.sisyphus/evidence/
+.sisyphus/drafts/
+
 .idea/
 
 .gradle
