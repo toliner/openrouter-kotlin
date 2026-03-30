@@ -55,7 +55,7 @@ dokka {
 
         sourceLink {
             localDirectory.set(file("src/main/kotlin"))
-            remoteUrl("https://github.com/toliner/openrouter-kotlin/tree/main/src/main/kotlin")
+            remoteUrl("https://github.com/toliner/openrouter-kotlin/tree/master/src/main/kotlin")
             remoteLineSuffix.set("#L")
         }
 

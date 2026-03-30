@@ -27,7 +27,7 @@ All source code lives under `dev.toliner.openrouter` in `src/main/kotlin/` and `
 - **Dependencies**: Ktor client (CIO engine), kotlinx-serialization-json 1.10.0
 - **Testing**: Kotest with JUnit5 runner
 - **Publishing**: maven-publish plugin, JitPack, GitHub Releases on `v*.*.*` tags
-- **CI**: GitHub Actions — build+test on push to main and PRs (`.github/workflows/ci.yml`), release on tags (`.github/workflows/release.yml`)
+- **CI**: GitHub Actions — build+test on push to master and PRs (`.github/workflows/ci.yml`), release on tags (`.github/workflows/release.yml`)
 
 ### Common Commands
 ```bash
