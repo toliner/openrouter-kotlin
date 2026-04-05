@@ -2,21 +2,9 @@ package dev.toliner.openrouter.l1.chat
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.json.JsonElement
 
 /**
- * Represents provider-specific preferences and routing options for chat completions.
- *
- * OpenRouter routes requests to multiple providers. This class allows fine-grained
- * control over provider selection, fallback behavior, and routing strategies.
- *
- * @property order Preferred order of providers to try. List of provider IDs (e.g., ["OpenAI", "Anthropic"]).
- * @property allowFallbacks Whether to allow fallback to other providers if preferred providers fail.
- * @property requireParameters Whether to require all request parameters to be supported by the selected provider.
- * @property dataCollection Data collection preference ("deny", "allow"). Controls whether provider can train on data.
- * @property sort Sorting strategy for provider selection ("cost", "latency", "quality", etc.).
- * @property preferredMinThroughput Minimum preferred throughput in tokens/second. Filters providers by speed.
- * @property ignore List of provider IDs to exclude from selection.
+ * Provider-specific preferences and routing options for chat completions.
  *
  * @see ChatCompletionRequest.provider
  */
@@ -24,16 +12,28 @@ import kotlinx.serialization.json.JsonElement
 public data class ProviderPreferences(
     @SerialName("order")
     val order: List<String>? = null,
+    @SerialName("only")
+    val only: List<String>? = null,
+    @SerialName("ignore")
+    val ignore: List<String>? = null,
     @SerialName("allow_fallbacks")
     val allowFallbacks: Boolean? = null,
     @SerialName("require_parameters")
     val requireParameters: Boolean? = null,
     @SerialName("data_collection")
-    val dataCollection: String? = null,
+    val dataCollection: DataCollection? = null,
+    @SerialName("zdr")
+    val zdr: Boolean? = null,
+    @SerialName("enforce_distillable_text")
+    val enforceDistillableText: Boolean? = null,
+    @SerialName("quantizations")
+    val quantizations: List<Quantization>? = null,
     @SerialName("sort")
-    val sort: String? = null,
+    val sort: ProviderSort? = null,
+    @SerialName("max_price")
+    val maxPrice: MaxPrice? = null,
     @SerialName("preferred_min_throughput")
-    val preferredMinThroughput: Int? = null,
-    @SerialName("ignore")
-    val ignore: List<String>? = null
+    val preferredMinThroughput: PreferredThroughput? = null,
+    @SerialName("preferred_max_latency")
+    val preferredMaxLatency: PreferredLatency? = null
 )

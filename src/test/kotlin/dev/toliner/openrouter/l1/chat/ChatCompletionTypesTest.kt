@@ -112,7 +112,7 @@ class ChatCompletionTypesTest : FunSpec({
             order = listOf("OpenAI", "Anthropic"),
             allowFallbacks = true,
             requireParameters = true,
-            dataCollection = "deny"
+            dataCollection = DataCollection.DENY
         )
         val json = OpenRouterJson.encodeToString(ProviderPreferences.serializer(), prefs)
         val decoded = OpenRouterJson.decodeFromString(ProviderPreferences.serializer(), json)
