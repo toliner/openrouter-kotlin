@@ -136,10 +136,33 @@ public class ChatRequestBuilder {
     /**
      * Format specification for the model's output.
      *
-     * Use this to request JSON mode or other structured output formats.
+     * Use the [responseFormat] DSL method for a convenient builder, or set this directly.
      * @see ResponseFormat for available options
+     * @see responseFormat for the DSL configuration method
      */
     public var responseFormat: ResponseFormat? = null
+    
+    /**
+     * Configures the response format using a DSL builder.
+     *
+     * Example:
+     * ```kotlin
+     * chatRequest {
+     *     model = "openai/gpt-4o"
+     *     userMessage("Extract user info")
+     *     responseFormat {
+     *         jsonSchema<UserInfo>("user_info")
+     *     }
+     * }
+     * ```
+     *
+     * @param block Configuration block executed in the context of [ResponseFormatBuilder].
+     * @see ResponseFormatBuilder
+     * @see ResponseFormat
+     */
+    public fun responseFormat(block: ResponseFormatBuilder.() -> Unit) {
+        this.responseFormat = ResponseFormatBuilder().apply(block).build()
+    }
     
     /**
      * Provider routing preferences for the request.

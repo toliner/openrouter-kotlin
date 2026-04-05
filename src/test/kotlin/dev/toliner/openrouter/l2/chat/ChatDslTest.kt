@@ -47,7 +47,7 @@ class ChatDslTest : FunSpec({
             repetitionPenalty = 1.1
             seed = 42
             stop = StringOrArray.Single("STOP")
-            responseFormat = ResponseFormat(type = "json_object")
+            responseFormat = ResponseFormat.JsonObject
             
             systemMessage("You are a helpful assistant.")
             userMessage("What is Kotlin?")
@@ -65,7 +65,7 @@ class ChatDslTest : FunSpec({
         request.repetitionPenalty shouldBe 1.1
         request.seed shouldBe 42
         request.stop.shouldNotBeNull()
-        request.responseFormat?.type shouldBe "json_object"
+        request.responseFormat shouldBe ResponseFormat.JsonObject
         
         request.messages shouldHaveSize 4
         request.messages[0].shouldBeInstanceOf<Message.System>()

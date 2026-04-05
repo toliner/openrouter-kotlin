@@ -99,7 +99,7 @@ class ChatCompletionTypesTest : FunSpec({
     }
     
     test("ResponseFormat serialization round-trip") {
-        val format = ResponseFormat(type = "json_object")
+        val format = ResponseFormat.JsonObject
         val json = OpenRouterJson.encodeToString(ResponseFormat.serializer(), format)
         val decoded = OpenRouterJson.decodeFromString(ResponseFormat.serializer(), json)
         
@@ -181,7 +181,7 @@ class ChatCompletionTypesTest : FunSpec({
                 )
             ),
             toolChoice = dev.toliner.openrouter.serialization.ToolChoice.Mode("auto"),
-            responseFormat = ResponseFormat(type = "json_object"),
+            responseFormat = ResponseFormat.JsonObject,
             provider = ProviderPreferences(order = listOf("OpenAI")),
             trace = Trace(traceId = "trace_1"),
             transforms = listOf("middle-out")
