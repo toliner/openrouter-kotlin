@@ -1,35 +1,58 @@
 package dev.toliner.openrouter.l1.account
 
+import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 /**
- * Response containing daily usage activity for an OpenRouter API key.
+ * Response containing usage activity for an OpenRouter API key.
  *
- * This data is retrieved from the `/api/v1/activity` endpoint and provides
- * a breakdown of API usage by day, including request counts and costs.
- *
- * @property data List of daily activity records, ordered by date
- * @see DailyActivity
+ * @property data List of activity records.
+ * @see ActivityItem
  */
 @Serializable
 public data class Activity(
-    val data: List<DailyActivity>
+    @SerialName("data")
+    val data: List<ActivityItem>
 )
 
 /**
- * Daily usage activity for a single day.
+ * Usage activity for a single model/endpoint/day combination.
  *
- * Represents the aggregated API usage metrics for a specific date,
- * including the number of requests made and the total cost incurred.
- *
- * @property date Date in ISO 8601 format (e.g., "2024-03-30")
- * @property requests Total number of API requests made on this date
- * @property cost Total cost in USD for all requests on this date
+ * @property date Date in ISO 8601 format (e.g., "2024-03-30").
+ * @property model Model slug (e.g., "openai/gpt-4.1").
+ * @property modelPermaslug Model permaslug (e.g., "openai/gpt-4.1-2025-04-14").
+ * @property endpointId Unique identifier for the endpoint.
+ * @property providerName Name of the provider serving this endpoint.
+ * @property usage Total cost in USD (OpenRouter credits spent).
+ * @property byokUsageInference BYOK inference cost in USD (external credits spent).
+ * @property requests Number of requests made.
+ * @property promptTokens Total prompt tokens used.
+ * @property completionTokens Total completion tokens generated.
+ * @property reasoningTokens Total reasoning tokens used.
  * @see Activity
  */
 @Serializable
-public data class DailyActivity(
+public data class ActivityItem(
+    @SerialName("date")
     val date: String,
+    @SerialName("model")
+    val model: String,
+    @SerialName("model_permaslug")
+    val modelPermaslug: String,
+    @SerialName("endpoint_id")
+    val endpointId: String,
+    @SerialName("provider_name")
+    val providerName: String,
+    @SerialName("usage")
+    val usage: Double,
+    @SerialName("byok_usage_inference")
+    val byokUsageInference: Double,
+    @SerialName("requests")
     val requests: Int,
-    val cost: Double
+    @SerialName("prompt_tokens")
+    val promptTokens: Int,
+    @SerialName("completion_tokens")
+    val completionTokens: Int,
+    @SerialName("reasoning_tokens")
+    val reasoningTokens: Int
 )

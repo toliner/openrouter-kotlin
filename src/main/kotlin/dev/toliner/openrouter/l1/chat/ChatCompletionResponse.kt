@@ -3,6 +3,7 @@ package dev.toliner.openrouter.l1.chat
 import dev.toliner.openrouter.error.ErrorBody
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.JsonElement
 
 /**
  * Represents a complete response from the OpenRouter Chat Completions endpoint.
@@ -15,6 +16,8 @@ import kotlinx.serialization.Serializable
  * @property objectType The object type, always "chat.completion" for non-streaming responses.
  * @property created Unix timestamp (seconds) of when the completion was created.
  * @property choices List of completion choices. Typically contains one choice, but may have more if `n > 1`.
+ * @property systemFingerprint System fingerprint for the model, if available.
+ * @property serviceTier The service tier used by the upstream provider for this request.
  * @property usage Token usage statistics for this request, if available.
  *
  * @see ChatCompletionRequest
@@ -34,6 +37,10 @@ public data class ChatCompletionResponse(
     val created: Long,
     @SerialName("choices")
     val choices: List<Choice>,
+    @SerialName("system_fingerprint")
+    val systemFingerprint: String? = null,
+    @SerialName("service_tier")
+    val serviceTier: String? = null,
     @SerialName("usage")
     val usage: Usage? = null
 )
@@ -45,23 +52,24 @@ public data class ChatCompletionResponse(
  * how the generation finished. If multiple choices were requested (`n > 1`),
  * the response will contain multiple Choice objects.
  *
+ * @property finishReason Why the model stopped generating ("stop", "length", "tool_calls", "content_filter", etc.). Nullable for streaming.
  * @property index The index of this choice in the list of choices.
  * @property message The generated message from the model.
- * @property finishReason Why the model stopped generating ("stop", "length", "tool_calls", "content_filter", etc.).
- * @property error Error information if this specific choice encountered an error.
+ * @property logprobs Log probability information for the choice, if requested.
  *
  * @see ChatCompletionResponse
  * @see Message
- * @see ErrorBody
  */
 @Serializable
 public data class Choice(
+    @SerialName("finish_reason")
+    val finishReason: String?,
     @SerialName("index")
     val index: Int,
     @SerialName("message")
     val message: Message,
-    @SerialName("finish_reason")
-    val finishReason: String? = null,
+    @SerialName("logprobs")
+    val logprobs: JsonElement? = null,
     @SerialName("error")
     val error: ErrorBody? = null
 )
