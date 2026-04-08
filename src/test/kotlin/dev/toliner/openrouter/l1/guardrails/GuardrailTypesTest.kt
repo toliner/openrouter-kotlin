@@ -3,40 +3,38 @@ package dev.toliner.openrouter.l1.guardrails
 import dev.toliner.openrouter.serialization.OpenRouterJson
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
-import kotlinx.serialization.json.JsonObject
-import kotlinx.serialization.json.JsonPrimitive
 
 class GuardrailTypesTest : FunSpec({
     test("Guardrail should deserialize with all fields") {
         val json = """
             {
-                "id": "guardrail_abc123",
-                "name": "content-policy",
-                "description": "Content moderation policy",
-                "config": {
-                    "blocked_topics": ["violence", "hate"],
-                    "severity": "strict"
-                },
-                "created_at": 1679500800,
-                "updated_at": 1679587200
+                "id": "550e8400-e29b-41d4-a716-446655440000",
+                "name": "Production Guardrail",
+                "description": "Guardrail for production environment",
+                "limit_usd": 100.0,
+                "reset_interval": "monthly",
+                "allowed_providers": ["openai", "anthropic"],
+                "ignored_providers": ["azure"],
+                "allowed_models": ["openai/gpt-4"],
+                "enforce_zdr": false,
+                "created_at": "2025-08-24T10:30:00Z",
+                "updated_at": "2025-08-24T15:45:00Z"
             }
         """.trimIndent()
 
         val guardrail = OpenRouterJson.decodeFromString<Guardrail>(json)
 
-        guardrail.id shouldBe "guardrail_abc123"
-        guardrail.name shouldBe "content-policy"
-        guardrail.description shouldBe "Content moderation policy"
-        guardrail.config shouldBe JsonObject(
-            mapOf(
-                "blocked_topics" to kotlinx.serialization.json.JsonArray(
-                    listOf(JsonPrimitive("violence"), JsonPrimitive("hate"))
-                ),
-                "severity" to JsonPrimitive("strict")
-            )
-        )
-        guardrail.createdAt shouldBe 1679500800
-        guardrail.updatedAt shouldBe 1679587200
+        guardrail.id shouldBe "550e8400-e29b-41d4-a716-446655440000"
+        guardrail.name shouldBe "Production Guardrail"
+        guardrail.description shouldBe "Guardrail for production environment"
+        guardrail.limitUsd shouldBe 100.0
+        guardrail.resetInterval shouldBe "monthly"
+        guardrail.allowedProviders shouldBe listOf("openai", "anthropic")
+        guardrail.ignoredProviders shouldBe listOf("azure")
+        guardrail.allowedModels shouldBe listOf("openai/gpt-4")
+        guardrail.enforceZdr shouldBe false
+        guardrail.createdAt shouldBe "2025-08-24T10:30:00Z"
+        guardrail.updatedAt shouldBe "2025-08-24T15:45:00Z"
     }
 
     test("Guardrail should deserialize with optional fields absent") {
@@ -44,7 +42,7 @@ class GuardrailTypesTest : FunSpec({
             {
                 "id": "guardrail_xyz789",
                 "name": "basic-policy",
-                "created_at": 1679500800
+                "created_at": "2025-08-24T10:30:00Z"
             }
         """.trimIndent()
 
@@ -53,7 +51,9 @@ class GuardrailTypesTest : FunSpec({
         guardrail.id shouldBe "guardrail_xyz789"
         guardrail.name shouldBe "basic-policy"
         guardrail.description shouldBe null
-        guardrail.config shouldBe null
+        guardrail.limitUsd shouldBe null
+        guardrail.resetInterval shouldBe null
+        guardrail.allowedProviders shouldBe null
         guardrail.updatedAt shouldBe null
     }
 
@@ -63,12 +63,12 @@ class GuardrailTypesTest : FunSpec({
                 {
                     "id": "guardrail_1",
                     "name": "policy-1",
-                    "created_at": 1679500800
+                    "created_at": "2025-01-01T00:00:00Z"
                 },
                 {
                     "id": "guardrail_2",
                     "name": "policy-2",
-                    "created_at": 1679587200
+                    "created_at": "2025-01-02T00:00:00Z"
                 }
             ]
         """.trimIndent()
@@ -85,70 +85,62 @@ class GuardrailTypesTest : FunSpec({
     test("GuardrailAssignment should deserialize with all fields") {
         val json = """
             {
-                "id": "assignment_abc123",
-                "guardrail_id": "guardrail_xyz789",
-                "target_type": "api_key",
-                "target_id": "sk_live_key123",
-                "created_at": 1679500800
+                "id": "550e8400-e29b-41d4-a716-446655440000",
+                "key_hash": "c56454edb818d6b14bc0d61c46025f1450b0f4012d12304ab40aacb519fcbc93",
+                "guardrail_id": "550e8400-e29b-41d4-a716-446655440001",
+                "key_name": "Production Key",
+                "key_label": "prod-key",
+                "assigned_by": "user_abc123",
+                "created_at": "2025-08-24T10:30:00Z"
             }
         """.trimIndent()
 
         val assignment = OpenRouterJson.decodeFromString<GuardrailAssignment>(json)
 
-        assignment.id shouldBe "assignment_abc123"
-        assignment.guardrailId shouldBe "guardrail_xyz789"
-        assignment.targetType shouldBe "api_key"
-        assignment.targetId shouldBe "sk_live_key123"
-        assignment.createdAt shouldBe 1679500800
+        assignment.id shouldBe "550e8400-e29b-41d4-a716-446655440000"
+        assignment.keyHash shouldBe "c56454edb818d6b14bc0d61c46025f1450b0f4012d12304ab40aacb519fcbc93"
+        assignment.guardrailId shouldBe "550e8400-e29b-41d4-a716-446655440001"
+        assignment.keyName shouldBe "Production Key"
+        assignment.keyLabel shouldBe "prod-key"
+        assignment.assignedBy shouldBe "user_abc123"
+        assignment.createdAt shouldBe "2025-08-24T10:30:00Z"
     }
 
-    test("GuardrailAssignment list response should deserialize") {
+    test("GuardrailAssignment should deserialize with null assigned_by") {
         val json = """
-            [
-                {
-                    "id": "assignment_1",
-                    "guardrail_id": "guardrail_1",
-                    "target_type": "api_key",
-                    "target_id": "sk_live_key1",
-                    "created_at": 1679500800
-                },
-                {
-                    "id": "assignment_2",
-                    "guardrail_id": "guardrail_1",
-                    "target_type": "model",
-                    "target_id": "gpt-4",
-                    "created_at": 1679587200
-                }
-            ]
+            {
+                "id": "assignment_1",
+                "key_hash": "abc123",
+                "guardrail_id": "guardrail_1",
+                "key_name": "Key 1",
+                "key_label": "key-1",
+                "assigned_by": null,
+                "created_at": "2025-08-24T10:30:00Z"
+            }
         """.trimIndent()
 
-        val assignments = OpenRouterJson.decodeFromString<List<GuardrailAssignment>>(json)
-
-        assignments.size shouldBe 2
-        assignments[0].id shouldBe "assignment_1"
-        assignments[0].targetType shouldBe "api_key"
-        assignments[1].id shouldBe "assignment_2"
-        assignments[1].targetType shouldBe "model"
+        val assignment = OpenRouterJson.decodeFromString<GuardrailAssignment>(json)
+        assignment.assignedBy shouldBe null
     }
 
     test("CreateGuardrailRequest should serialize with all fields") {
         val request = CreateGuardrailRequest(
             name = "my-policy",
             description = "Custom policy",
-            config = JsonObject(mapOf("key" to JsonPrimitive("value")))
+            limitUsd = 50.0,
+            resetInterval = "monthly",
+            allowedProviders = listOf("openai", "anthropic"),
+            enforceZdr = false
         )
 
         val json = OpenRouterJson.encodeToString(CreateGuardrailRequest.serializer(), request)
+        val decoded = OpenRouterJson.decodeFromString<CreateGuardrailRequest>(json)
 
-        json shouldBe """{"name":"my-policy","description":"Custom policy","config":{"key":"value"}}"""
+        decoded shouldBe request
     }
 
     test("CreateGuardrailRequest should serialize with minimal fields") {
-        val request = CreateGuardrailRequest(
-            name = "minimal-policy",
-            description = null,
-            config = null
-        )
+        val request = CreateGuardrailRequest(name = "minimal-policy")
 
         val json = OpenRouterJson.encodeToString(CreateGuardrailRequest.serializer(), request)
 
@@ -159,20 +151,18 @@ class GuardrailTypesTest : FunSpec({
         val request = UpdateGuardrailRequest(
             name = "updated-policy",
             description = "Updated description",
-            config = JsonObject(mapOf("updated" to JsonPrimitive("true")))
+            limitUsd = 75.0,
+            resetInterval = "weekly"
         )
 
         val json = OpenRouterJson.encodeToString(UpdateGuardrailRequest.serializer(), request)
+        val decoded = OpenRouterJson.decodeFromString<UpdateGuardrailRequest>(json)
 
-        json shouldBe """{"name":"updated-policy","description":"Updated description","config":{"updated":"true"}}"""
+        decoded shouldBe request
     }
 
     test("UpdateGuardrailRequest should serialize with partial fields") {
-        val request = UpdateGuardrailRequest(
-            name = "new-name",
-            description = null,
-            config = null
-        )
+        val request = UpdateGuardrailRequest(name = "new-name")
 
         val json = OpenRouterJson.encodeToString(UpdateGuardrailRequest.serializer(), request)
 
@@ -180,36 +170,30 @@ class GuardrailTypesTest : FunSpec({
     }
 
     test("UpdateGuardrailRequest should serialize with only description") {
-        val request = UpdateGuardrailRequest(
-            name = null,
-            description = "New description",
-            config = null
-        )
+        val request = UpdateGuardrailRequest(description = "New description")
 
         val json = OpenRouterJson.encodeToString(UpdateGuardrailRequest.serializer(), request)
 
         json shouldBe """{"description":"New description"}"""
     }
 
-    test("AddAssignmentRequest should serialize with all fields") {
+    test("AddAssignmentRequest should serialize") {
         val request = AddAssignmentRequest(
-            targetType = "api_key",
-            targetId = "sk_live_key123"
+            keyHashes = listOf("c56454edb818d6b14bc0d61c46025f1450b0f4012d12304ab40aacb519fcbc93")
         )
 
         val json = OpenRouterJson.encodeToString(AddAssignmentRequest.serializer(), request)
 
-        json shouldBe """{"target_type":"api_key","target_id":"sk_live_key123"}"""
+        json shouldBe """{"key_hashes":["c56454edb818d6b14bc0d61c46025f1450b0f4012d12304ab40aacb519fcbc93"]}"""
     }
 
-    test("AddAssignmentRequest should serialize for model target") {
+    test("AddAssignmentRequest should serialize with multiple keys") {
         val request = AddAssignmentRequest(
-            targetType = "model",
-            targetId = "gpt-4-turbo"
+            keyHashes = listOf("hash1", "hash2", "hash3")
         )
 
         val json = OpenRouterJson.encodeToString(AddAssignmentRequest.serializer(), request)
 
-        json shouldBe """{"target_type":"model","target_id":"gpt-4-turbo"}"""
+        json shouldBe """{"key_hashes":["hash1","hash2","hash3"]}"""
     }
 })

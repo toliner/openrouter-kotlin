@@ -70,13 +70,29 @@ class AccountTypesTest : FunSpec({
                 "data": [
                     {
                         "date": "2024-03-22",
+                        "model": "openai/gpt-4o",
+                        "model_permaslug": "openai/gpt-4o-2024-05-13",
+                        "endpoint_id": "ep-123",
+                        "provider_name": "OpenAI",
+                        "usage": 2.5,
+                        "byok_usage_inference": 0.0,
                         "requests": 150,
-                        "cost": 2.5
+                        "prompt_tokens": 5000,
+                        "completion_tokens": 3000,
+                        "reasoning_tokens": 0
                     },
                     {
                         "date": "2024-03-21",
+                        "model": "anthropic/claude-3-opus",
+                        "model_permaslug": "anthropic/claude-3-opus-20240229",
+                        "endpoint_id": "ep-456",
+                        "provider_name": "Anthropic",
+                        "usage": 3.75,
+                        "byok_usage_inference": 1.0,
                         "requests": 200,
-                        "cost": 3.75
+                        "prompt_tokens": 8000,
+                        "completion_tokens": 5000,
+                        "reasoning_tokens": 100
                     }
                 ]
             }
@@ -86,11 +102,13 @@ class AccountTypesTest : FunSpec({
 
         activity.data.size shouldBe 2
         activity.data[0].date shouldBe "2024-03-22"
+        activity.data[0].model shouldBe "openai/gpt-4o"
         activity.data[0].requests shouldBe 150
-        activity.data[0].cost shouldBe 2.5
+        activity.data[0].usage shouldBe 2.5
         activity.data[1].date shouldBe "2024-03-21"
+        activity.data[1].model shouldBe "anthropic/claude-3-opus"
         activity.data[1].requests shouldBe 200
-        activity.data[1].cost shouldBe 3.75
+        activity.data[1].usage shouldBe 3.75
     }
 
     test("Activity should deserialize with empty data array") {
@@ -119,19 +137,35 @@ class AccountTypesTest : FunSpec({
         rateLimit.interval shouldBe "30s"
     }
 
-    test("DailyActivity should deserialize date, requests, and cost") {
+    test("ActivityItem should deserialize all fields") {
         val json = """
             {
                 "date": "2024-03-20",
+                "model": "openai/gpt-4o",
+                "model_permaslug": "openai/gpt-4o-2024-05-13",
+                "endpoint_id": "ep-789",
+                "provider_name": "OpenAI",
+                "usage": 1.25,
+                "byok_usage_inference": 0.5,
                 "requests": 100,
-                "cost": 1.25
+                "prompt_tokens": 4000,
+                "completion_tokens": 2000,
+                "reasoning_tokens": 50
             }
         """.trimIndent()
 
-        val dailyActivity = OpenRouterJson.decodeFromString<DailyActivity>(json)
+        val activityItem = OpenRouterJson.decodeFromString<ActivityItem>(json)
 
-        dailyActivity.date shouldBe "2024-03-20"
-        dailyActivity.requests shouldBe 100
-        dailyActivity.cost shouldBe 1.25
+        activityItem.date shouldBe "2024-03-20"
+        activityItem.model shouldBe "openai/gpt-4o"
+        activityItem.modelPermaslug shouldBe "openai/gpt-4o-2024-05-13"
+        activityItem.endpointId shouldBe "ep-789"
+        activityItem.providerName shouldBe "OpenAI"
+        activityItem.usage shouldBe 1.25
+        activityItem.byokUsageInference shouldBe 0.5
+        activityItem.requests shouldBe 100
+        activityItem.promptTokens shouldBe 4000
+        activityItem.completionTokens shouldBe 2000
+        activityItem.reasoningTokens shouldBe 50
     }
 })

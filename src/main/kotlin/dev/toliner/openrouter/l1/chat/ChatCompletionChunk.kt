@@ -8,14 +8,16 @@ import kotlinx.serialization.Serializable
  * Represents a chunk in a streaming chat completion response.
  *
  * When streaming is enabled (`stream = true`), the OpenRouter API returns a series
- * of server-sent events (SSE), each containing a ChatCompletionChunk. These chunks
- * contain incremental updates ([Delta]) rather than complete messages.
+ * of server-sent events (SSE), each containing a ChatCompletionChunk.
  *
  * @property id Unique identifier for this completion (same across all chunks in a stream).
  * @property model The model used to generate the completion.
  * @property objectType The object type, always "chat.completion.chunk" for streaming responses.
  * @property created Unix timestamp (seconds) of when the completion was created.
- * @property choices List of delta choices. Each chunk typically contains one choice.
+ * @property choices List of delta choices.
+ * @property systemFingerprint System fingerprint for the model, if available.
+ * @property serviceTier The service tier used by the upstream provider for this request.
+ * @property error In-band error information, if any.
  * @property usage Token usage statistics, typically only present in the final chunk.
  *
  * @see ChatCompletionRequest
@@ -35,6 +37,12 @@ public data class ChatCompletionChunk(
     val created: Long,
     @SerialName("choices")
     val choices: List<ChunkChoice>,
+    @SerialName("system_fingerprint")
+    val systemFingerprint: String? = null,
+    @SerialName("service_tier")
+    val serviceTier: String? = null,
+    @SerialName("error")
+    val error: ErrorBody? = null,
     @SerialName("usage")
     val usage: Usage? = null
 )
@@ -42,40 +50,34 @@ public data class ChatCompletionChunk(
 /**
  * Represents a single delta choice in a streaming chunk.
  *
- * Unlike [Choice] in non-streaming responses, ChunkChoice contains a [Delta]
- * representing an incremental update rather than a complete message.
- *
- * @property index The index of this choice in the list of choices.
  * @property delta The incremental content update for this chunk.
- * @property finishReason Why the model stopped generating. Only present in the final chunk ("stop", "length", etc.).
- * @property error Error information if this specific choice encountered an error.
+ * @property finishReason Why the model stopped generating. Nullable; only present in the final chunk.
+ * @property index The index of this choice in the list of choices.
  *
  * @see ChatCompletionChunk
  * @see Delta
- * @see Choice
  */
 @Serializable
 public data class ChunkChoice(
-    @SerialName("index")
-    val index: Int,
     @SerialName("delta")
     val delta: Delta,
     @SerialName("finish_reason")
     val finishReason: String? = null,
-    @SerialName("error")
-    val error: ErrorBody? = null
+    @SerialName("index")
+    val index: Int
 )
 
 /**
  * Represents an incremental content update in a streaming response.
  *
  * Deltas contain partial information that must be accumulated across chunks to
- * reconstruct the complete message. The first chunk typically contains the role,
- * subsequent chunks contain content fragments, and tool calls are sent incrementally.
+ * reconstruct the complete message.
  *
  * @property role The role of the message sender. Only present in the first chunk ("assistant").
- * @property content Incremental text content. Concatenate across chunks to build the full message.
- * @property toolCalls Incremental tool call updates. Tool calls are built up across multiple chunks.
+ * @property content Incremental text content.
+ * @property reasoning Incremental reasoning/chain-of-thought content.
+ * @property refusal Refusal message content.
+ * @property toolCalls Incremental tool call updates.
  *
  * @see ChunkChoice
  * @see DeltaToolCall
@@ -86,6 +88,10 @@ public data class Delta(
     val role: String? = null,
     @SerialName("content")
     val content: String? = null,
+    @SerialName("reasoning")
+    val reasoning: String? = null,
+    @SerialName("refusal")
+    val refusal: String? = null,
     @SerialName("tool_calls")
     val toolCalls: List<DeltaToolCall>? = null
 )

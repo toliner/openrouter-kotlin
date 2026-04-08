@@ -20,8 +20,7 @@ import io.ktor.http.HttpStatusCode
 import io.ktor.http.content.OutgoingContent
 import io.ktor.http.headersOf
 import kotlinx.coroutines.runBlocking
-import kotlinx.serialization.json.JsonObject
-import kotlinx.serialization.json.JsonPrimitive
+import kotlinx.serialization.json.jsonArray
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
 
@@ -34,14 +33,15 @@ class GuardrailsApiTest : FunSpec({
                         "id": "guardrail_1",
                         "name": "content-policy",
                         "description": "Content moderation",
-                        "config": {"severity": "strict"},
-                        "created_at": 1679500800,
-                        "updated_at": 1679587200
+                        "limit_usd": 100.0,
+                        "reset_interval": "monthly",
+                        "created_at": "2024-03-22T00:00:00Z",
+                        "updated_at": "2024-03-23T00:00:00Z"
                     },
                     {
                         "id": "guardrail_2",
                         "name": "basic-policy",
-                        "created_at": 1679500800
+                        "created_at": "2024-03-22T00:00:00Z"
                     }
                 ]
             """.trimIndent(),
@@ -58,6 +58,8 @@ class GuardrailsApiTest : FunSpec({
             guardrails[0].id shouldBe "guardrail_1"
             guardrails[0].name shouldBe "content-policy"
             guardrails[0].description shouldBe "Content moderation"
+            guardrails[0].limitUsd shouldBe 100.0
+            guardrails[0].resetInterval shouldBe "monthly"
             guardrails[1].id shouldBe "guardrail_2"
             guardrails[1].name shouldBe "basic-policy"
         }
@@ -70,8 +72,9 @@ class GuardrailsApiTest : FunSpec({
                     "id": "guardrail_new123",
                     "name": "my-policy",
                     "description": "Custom policy",
-                    "config": {"key": "value"},
-                    "created_at": 1679500800
+                    "limit_usd": 50.0,
+                    "enforce_zdr": true,
+                    "created_at": "2024-03-22T00:00:00Z"
                 }
             """.trimIndent(),
             requestValidator = { req ->
@@ -83,7 +86,7 @@ class GuardrailsApiTest : FunSpec({
                 val bodyJson = OpenRouterJson.parseToJsonElement(req.bodyAsText()).jsonObject
                 bodyJson["name"]?.jsonPrimitive?.content shouldBe "my-policy"
                 bodyJson["description"]?.jsonPrimitive?.content shouldBe "Custom policy"
-                bodyJson["config"]?.jsonObject?.get("key")?.jsonPrimitive?.content shouldBe "value"
+                bodyJson["limit_usd"]?.jsonPrimitive?.content shouldBe "50.0"
             }
         )
 
@@ -91,7 +94,7 @@ class GuardrailsApiTest : FunSpec({
             val request = CreateGuardrailRequest(
                 name = "my-policy",
                 description = "Custom policy",
-                config = JsonObject(mapOf("key" to JsonPrimitive("value")))
+                limitUsd = 50.0
             )
             val guardrail = runBlocking { client.guardrails.create(request) }
             guardrail.id shouldBe "guardrail_new123"
@@ -107,9 +110,9 @@ class GuardrailsApiTest : FunSpec({
                     "id": "guardrail_abc123",
                     "name": "specific-policy",
                     "description": "Specific guardrail",
-                    "config": {"mode": "test"},
-                    "created_at": 1679500800,
-                    "updated_at": 1679587200
+                    "allowed_providers": ["openai", "anthropic"],
+                    "created_at": "2024-03-22T00:00:00Z",
+                    "updated_at": "2024-03-23T00:00:00Z"
                 }
             """.trimIndent(),
             requestValidator = { req ->
@@ -124,6 +127,7 @@ class GuardrailsApiTest : FunSpec({
             guardrail.id shouldBe "guardrail_abc123"
             guardrail.name shouldBe "specific-policy"
             guardrail.description shouldBe "Specific guardrail"
+            guardrail.allowedProviders shouldBe listOf("openai", "anthropic")
         }
     }
 
@@ -134,9 +138,9 @@ class GuardrailsApiTest : FunSpec({
                     "id": "guardrail_update456",
                     "name": "updated-policy",
                     "description": "Updated description",
-                    "config": {"updated": "true"},
-                    "created_at": 1679500800,
-                    "updated_at": 1679587200
+                    "limit_usd": 200.0,
+                    "created_at": "2024-03-22T00:00:00Z",
+                    "updated_at": "2024-03-23T00:00:00Z"
                 }
             """.trimIndent(),
             requestValidator = { req ->
@@ -148,7 +152,7 @@ class GuardrailsApiTest : FunSpec({
                 val bodyJson = OpenRouterJson.parseToJsonElement(req.bodyAsText()).jsonObject
                 bodyJson["name"]?.jsonPrimitive?.content shouldBe "updated-policy"
                 bodyJson["description"]?.jsonPrimitive?.content shouldBe "Updated description"
-                bodyJson["config"]?.jsonObject?.get("updated")?.jsonPrimitive?.content shouldBe "true"
+                bodyJson["limit_usd"]?.jsonPrimitive?.content shouldBe "200.0"
             }
         )
 
@@ -156,7 +160,7 @@ class GuardrailsApiTest : FunSpec({
             val request = UpdateGuardrailRequest(
                 name = "updated-policy",
                 description = "Updated description",
-                config = JsonObject(mapOf("updated" to JsonPrimitive("true")))
+                limitUsd = 200.0
             )
             val guardrail = runBlocking { client.guardrails.update("guardrail_update456", request) }
             guardrail.id shouldBe "guardrail_update456"
@@ -172,7 +176,7 @@ class GuardrailsApiTest : FunSpec({
                     "id": "guardrail_partial789",
                     "name": "partial-policy",
                     "description": "New description",
-                    "created_at": 1679500800
+                    "created_at": "2024-03-22T00:00:00Z"
                 }
             """.trimIndent(),
             requestValidator = { req ->
@@ -181,16 +185,14 @@ class GuardrailsApiTest : FunSpec({
 
                 val bodyJson = OpenRouterJson.parseToJsonElement(req.bodyAsText()).jsonObject
                 bodyJson["description"]?.jsonPrimitive?.content shouldBe "New description"
-                bodyJson.containsKey("name") shouldBe false  // Not included in partial update
-                bodyJson.containsKey("config") shouldBe false  // Not included in partial update
+                bodyJson.containsKey("name") shouldBe false
+                bodyJson.containsKey("limit_usd") shouldBe false
             }
         )
 
         OpenRouterClient(engine, OpenRouterConfig(apiKey = "test-key")).use { client ->
             val request = UpdateGuardrailRequest(
-                name = null,
-                description = "New description",
-                config = null
+                description = "New description"
             )
             val guardrail = runBlocking { client.guardrails.update("guardrail_partial789", request) }
             guardrail.description shouldBe "New description"
@@ -222,17 +224,21 @@ class GuardrailsApiTest : FunSpec({
                 [
                     {
                         "id": "assignment_1",
+                        "key_hash": "abc123hash",
                         "guardrail_id": "guardrail_abc123",
-                        "target_type": "api_key",
-                        "target_id": "sk_live_key1",
-                        "created_at": 1679500800
+                        "key_name": "Production Key",
+                        "key_label": "prod-key",
+                        "assigned_by": "user_001",
+                        "created_at": "2024-03-22T00:00:00Z"
                     },
                     {
                         "id": "assignment_2",
+                        "key_hash": "def456hash",
                         "guardrail_id": "guardrail_abc123",
-                        "target_type": "model",
-                        "target_id": "gpt-4",
-                        "created_at": 1679587200
+                        "key_name": "Test Key",
+                        "key_label": "test-key",
+                        "assigned_by": null,
+                        "created_at": "2024-03-23T00:00:00Z"
                     }
                 ]
             """.trimIndent(),
@@ -248,10 +254,11 @@ class GuardrailsApiTest : FunSpec({
             assignments.size shouldBe 2
             assignments[0].id shouldBe "assignment_1"
             assignments[0].guardrailId shouldBe "guardrail_abc123"
-            assignments[0].targetType shouldBe "api_key"
-            assignments[0].targetId shouldBe "sk_live_key1"
+            assignments[0].keyHash shouldBe "abc123hash"
+            assignments[0].keyName shouldBe "Production Key"
             assignments[1].id shouldBe "assignment_2"
-            assignments[1].targetType shouldBe "model"
+            assignments[1].keyHash shouldBe "def456hash"
+            assignments[1].assignedBy shouldBe null
         }
     }
 
@@ -260,10 +267,12 @@ class GuardrailsApiTest : FunSpec({
             responseBody = """
                 {
                     "id": "assignment_new123",
+                    "key_hash": "key456hash",
                     "guardrail_id": "guardrail_xyz789",
-                    "target_type": "api_key",
-                    "target_id": "sk_live_key456",
-                    "created_at": 1679500800
+                    "key_name": "New Key",
+                    "key_label": "new-key",
+                    "assigned_by": "user_002",
+                    "created_at": "2024-03-22T00:00:00Z"
                 }
             """.trimIndent(),
             requestValidator = { req ->
@@ -273,21 +282,19 @@ class GuardrailsApiTest : FunSpec({
                 req.headers[HttpHeaders.ContentType]?.shouldStartWith(ContentType.Application.Json.toString())
 
                 val bodyJson = OpenRouterJson.parseToJsonElement(req.bodyAsText()).jsonObject
-                bodyJson["target_type"]?.jsonPrimitive?.content shouldBe "api_key"
-                bodyJson["target_id"]?.jsonPrimitive?.content shouldBe "sk_live_key456"
+                bodyJson["key_hashes"]?.jsonArray?.size shouldBe 1
+                bodyJson["key_hashes"]?.jsonArray?.get(0)?.jsonPrimitive?.content shouldBe "key456hash"
             }
         )
 
         OpenRouterClient(engine, OpenRouterConfig(apiKey = "test-key")).use { client ->
             val request = AddAssignmentRequest(
-                targetType = "api_key",
-                targetId = "sk_live_key456"
+                keyHashes = listOf("key456hash")
             )
             val assignment = runBlocking { client.guardrails.addAssignment("guardrail_xyz789", request) }
             assignment.id shouldBe "assignment_new123"
             assignment.guardrailId shouldBe "guardrail_xyz789"
-            assignment.targetType shouldBe "api_key"
-            assignment.targetId shouldBe "sk_live_key456"
+            assignment.keyHash shouldBe "key456hash"
         }
     }
 

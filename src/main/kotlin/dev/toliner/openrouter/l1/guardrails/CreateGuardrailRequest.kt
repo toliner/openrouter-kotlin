@@ -1,24 +1,29 @@
 package dev.toliner.openrouter.l1.guardrails
 
+import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.json.JsonObject
 
 /**
  * Request body for creating a new guardrail.
  *
- * Used to define a new content filtering guardrail with a name, optional description, and
- * configuration parameters.
- *
- * @property name Human-readable name for the new guardrail (required)
- * @property description Optional detailed description of the guardrail's purpose and behavior
- * @property config Optional JSON configuration object containing guardrail-specific settings
- *
  * @see Guardrail
- * @see UpdateGuardrailRequest
  */
 @Serializable
 public data class CreateGuardrailRequest(
+    @SerialName("name")
     val name: String,
+    @SerialName("description")
     val description: String? = null,
-    val config: JsonObject? = null
+    @SerialName("limit_usd")
+    val limitUsd: Double? = null,
+    @SerialName("reset_interval")
+    val resetInterval: String? = null,
+    @SerialName("allowed_providers")
+    val allowedProviders: List<String>? = null,
+    @SerialName("ignored_providers")
+    val ignoredProviders: List<String>? = null,
+    @SerialName("allowed_models")
+    val allowedModels: List<String>? = null,
+    @SerialName("enforce_zdr")
+    val enforceZdr: Boolean? = null
 )

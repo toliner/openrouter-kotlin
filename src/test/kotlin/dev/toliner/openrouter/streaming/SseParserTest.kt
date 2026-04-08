@@ -123,7 +123,7 @@ class SseParserTest : FunSpec({
 
     test("mid-stream error throws StreamError") {
         val events = flowOf(
-            ServerSentEvent(data = """{"id":"gen-123","model":"openai/gpt-4o","object":"chat.completion.chunk","created":1,"choices":[{"index":0,"delta":{},"finish_reason":"error","error":{"message":"upstream failed","code":500}}]}""")
+            ServerSentEvent(data = """{"id":"gen-123","model":"openai/gpt-4o","object":"chat.completion.chunk","created":1,"choices":[{"index":0,"delta":{},"finish_reason":"error"}],"error":{"message":"upstream failed","code":500}}""")
         )
 
         val error = shouldThrow<OpenRouterException.StreamError> {

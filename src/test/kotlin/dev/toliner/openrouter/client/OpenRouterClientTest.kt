@@ -148,7 +148,7 @@ class OpenRouterClientTest : FunSpec({
                 "/api/v1/models" -> respond(
                     content =
                         """
-                        {"data":[{"id":"openai/gpt-4o-mini","name":"GPT-4o mini","pricing":{"prompt":"0.1","completion":"0.2","request":"0","image":"0"},"context_length":128000,"architecture":{"modality":"text->text","tokenizer":"cl100k_base"},"top_provider":{"context_length":128000,"max_completion_tokens":4096,"is_moderated":false}}]}
+                        {"data":[{"id":"openai/gpt-4o-mini","canonical_slug":"openai/gpt-4o-mini-2024-07-18","name":"GPT-4o mini","created":1721174400,"pricing":{"prompt":"0.1","completion":"0.2","request":"0","image":"0"},"context_length":128000,"architecture":{"modality":"text->text","tokenizer":"cl100k_base","input_modalities":["text"],"output_modalities":["text"]},"top_provider":{"context_length":128000,"max_completion_tokens":4096,"is_moderated":false},"per_request_limits":null,"supported_parameters":["temperature","max_tokens"],"default_parameters":null,"links":{"details":"/api/v1/models/openai/gpt-4o-mini/endpoints"}}]}
                         """.trimIndent(),
                     status = HttpStatusCode.OK,
                     headers = headersOf(HttpHeaders.ContentType, ContentType.Application.Json.toString())
@@ -163,7 +163,7 @@ class OpenRouterClientTest : FunSpec({
                 "/api/v1/models/user" -> respond(
                     content =
                         """
-                        {"data":[{"id":"anthropic/claude-3-haiku","name":"Claude Haiku","pricing":{"prompt":"0.1","completion":"0.2","request":"0","image":"0"},"context_length":200000,"architecture":{"modality":"text->text","tokenizer":"cl100k_base"},"top_provider":{"context_length":200000,"max_completion_tokens":4096,"is_moderated":true}}]}
+                        {"data":[{"id":"anthropic/claude-3-haiku","canonical_slug":"anthropic/claude-3-haiku-20240307","name":"Claude Haiku","created":1709769600,"pricing":{"prompt":"0.1","completion":"0.2","request":"0","image":"0"},"context_length":200000,"architecture":{"modality":"text->text","tokenizer":"cl100k_base","input_modalities":["text"],"output_modalities":["text"]},"top_provider":{"context_length":200000,"max_completion_tokens":4096,"is_moderated":true},"per_request_limits":null,"supported_parameters":["temperature","max_tokens"],"default_parameters":null,"links":{"details":"/api/v1/models/anthropic/claude-3-haiku/endpoints"}}]}
                         """.trimIndent(),
                     status = HttpStatusCode.OK,
                     headers = headersOf(HttpHeaders.ContentType, ContentType.Application.Json.toString())

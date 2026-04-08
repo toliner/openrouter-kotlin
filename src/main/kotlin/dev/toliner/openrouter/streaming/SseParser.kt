@@ -28,11 +28,8 @@ internal fun Flow<ServerSentEvent>.toChatCompletionChunks(json: Json): Flow<Chat
                 null
             } else {
                 val chunk = json.decodeFromJsonElement<ChatCompletionChunk>(element)
-                val streamError = chunk.choices.firstOrNull {
-                    it.finishReason == "error" && it.error != null
-                }?.error
-                if (streamError != null) {
-                    throw OpenRouterException.StreamError(streamError)
+                if (chunk.error != null) {
+                    throw OpenRouterException.StreamError(chunk.error)
                 }
                 chunk
             }
